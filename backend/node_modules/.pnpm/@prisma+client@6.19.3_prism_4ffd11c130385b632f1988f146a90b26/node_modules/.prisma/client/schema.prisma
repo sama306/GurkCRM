@@ -1,0 +1,322 @@
+// ---------------------------------------------------------------------------
+// GurkCRM — Prisma Schema
+// ---------------------------------------------------------------------------
+// Provider:  SQL Server (Microsoft)
+// Strategy:  Single-database, shared-schema multi-tenancy via organizationId
+// Naming:    PascalCase singular for both models and tables (@map)
+//
+// NOTE: SQL Server Prisma connector does not support native enums or the Json
+// type. All enum-like fields are stored as String; constraints are enforced
+// at the application layer (Zod schemas). JSON fields are stored as String
+// and parsed/stringified in the repository layer.
+//
+// Cyclic referential paths are avoided by using onDelete: NoAction on all
+// relations within Customer, Deal and Task (the multi-tenant entities that
+// form a shared-schema graph).
+// ---------------------------------------------------------------------------
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+// ── Organization (tenant) ──────────────────────────────────────────────────
+
+model Organization {
+  id           String   @id @default(cuid())
+  name         String
+  logoUrl      String?
+  primaryColor String?
+  timezone     String   @default("UTC")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users     User[]
+  companies Company[]
+  customers Customer[]
+  deals     Deal[]
+  tasks     Task[]
+
+  @@map("Organization")
+}
+
+// ── Role ───────────────────────────────────────────────────────────────────
+// name values: OWNER | ADMIN | SALES | VIEWER
+// permissions: JSON string — map of resource-permission rules
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String // OWNER | ADMIN | SALES | VIEWER
+  permissions String // JSON string
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users User[]
+
+  @@map("Role")
+}
+
+// ── User ───────────────────────────────────────────────────────────────────
+
+model User {
+  id             String    @id @default(cuid())
+  organizationId String
+  roleId         String
+  fullName       String
+  email          String    @unique
+  passwordHash   String
+  avatarUrl      String?
+  isActive       Boolean   @default(true)
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  role         Role         @relation(fields: [roleId], references: [id])
+
+  ownedCustomers Customer[]
+  ownedDeals     Deal[]
+  assignedTasks  Task[]
+  comments       Comment[]
+  uploadedFiles  File[]
+  refreshTokens  RefreshToken[]
+  notifications  Notification[]
+  activities     Activity[]
+
+  @@map("User")
+}
+
+// ── RefreshToken ───────────────────────────────────────────────────────────
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("RefreshToken")
+}
+
+// ── Company ────────────────────────────────────────────────────────────────
+// status values: ACTIVE | INACTIVE
+// size values:   1-10 | 11-50 | 51-200 | 201+
+
+model Company {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  industry       String?
+  website        String?
+  address        String?
+  size           String? // 1-10 | 11-50 | 51-200 | 201+
+  status         String // ACTIVE | INACTIVE
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  contacts  Contact[]
+  customers Customer[]
+  deals     Deal[]
+
+  @@map("Company")
+}
+
+// ── Contact ────────────────────────────────────────────────────────────────
+// socialLinks: JSON string — array of { platform, url }
+
+model Contact {
+  id          String   @id @default(cuid())
+  companyId   String
+  fullName    String
+  position    String?
+  email       String?
+  phone       String?
+  socialLinks String? // JSON string
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id])
+
+  @@map("Contact")
+}
+
+// ── Customer ──────────────────────────────────────────────────────────────
+// status values: LEAD | ACTIVE | INACTIVE
+
+model Customer {
+  id             String    @id @default(cuid())
+  organizationId String
+  companyId      String?
+  ownerId        String
+  fullName       String
+  email          String?
+  phone          String?
+  address        String?
+  status         String // LEAD | ACTIVE | INACTIVE
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  company      Company?     @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  owner        User         @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  deals Deal[]
+  tasks Task[]
+
+  @@map("Customer")
+}
+
+// ── Deal ──────────────────────────────────────────────────────────────────
+// stage values: NEW | CONTACTED | MEETING | PROPOSAL | NEGOTIATION | WON | LOST
+
+model Deal {
+  id                String    @id @default(cuid())
+  organizationId    String
+  customerId        String
+  companyId         String?
+  ownerId           String
+  title             String
+  estimatedValue    Decimal
+  currency          String    @default("USD")
+  stage             String // NEW | CONTACTED | MEETING | PROPOSAL | NEGOTIATION | WON | LOST
+  expectedCloseDate DateTime?
+  lostReason        String?
+  position          Int
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  company      Company?     @relation(fields: [companyId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  owner        User         @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  tasks Task[]
+
+  @@index([stage, organizationId])
+  @@map("Deal")
+}
+
+// ── Task ──────────────────────────────────────────────────────────────────
+// priority values: LOW | MEDIUM | HIGH
+// status values:   PENDING | IN_PROGRESS | DONE
+
+model Task {
+  id                String    @id @default(cuid())
+  organizationId    String
+  assigneeId        String
+  relatedCustomerId String?
+  relatedDealId     String?
+  title             String
+  description       String?
+  priority          String // LOW | MEDIUM | HIGH
+  dueDate           DateTime?
+  status            String // PENDING | IN_PROGRESS | DONE
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  assignee     User         @relation(fields: [assigneeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  customer     Customer?    @relation(fields: [relatedCustomerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  deal         Deal?        @relation(fields: [relatedDealId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([assigneeId, status])
+  @@map("Task")
+}
+
+// ── Comment (polymorphic) ─────────────────────────────────────────────────
+// entityType values: CUSTOMER | DEAL
+// entityType + entityId are plain fields — Prisma does not support
+// polymorphic foreign keys. Referential integrity is enforced at the
+// application layer (repository / service).
+
+model Comment {
+  id         String   @id @default(cuid())
+  authorId   String
+  entityType String // CUSTOMER | DEAL
+  entityId   String
+  body       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([entityType, entityId])
+  @@map("Comment")
+}
+
+// ── File (polymorphic) ────────────────────────────────────────────────────
+// entityType values: CUSTOMER | DEAL
+// Same polymorphic pattern as Comment — entityType + entityId are plain
+// fields. Integrity resolved at the application layer.
+
+model File {
+  id           String   @id @default(cuid())
+  uploadedById String
+  entityType   String // CUSTOMER | DEAL
+  entityId     String
+  fileName     String
+  fileUrl      String
+  fileType     String
+  sizeBytes    Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  uploadedBy User @relation(fields: [uploadedById], references: [id])
+
+  @@index([entityType, entityId])
+  @@map("File")
+}
+
+// ── Notification ──────────────────────────────────────────────────────────
+// type values: NEW_CUSTOMER | TASK_ASSIGNED | NEW_COMMENT | REMINDER
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String // NEW_CUSTOMER | TASK_ASSIGNED | NEW_COMMENT | REMINDER
+  title     String
+  body      String?
+  isRead    Boolean  @default(false)
+  linkUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, isRead])
+  @@map("Notification")
+}
+
+// ── Activity (audit log) ──────────────────────────────────────────────────
+// entityType values: CUSTOMER | DEAL | TASK | COMPANY
+// action values:     CREATED | UPDATED | DELETED | STAGE_CHANGED
+// metadata: JSON string — diff of changes
+
+model Activity {
+  id         String   @id @default(cuid())
+  userId     String
+  entityType String // CUSTOMER | DEAL | TASK | COMPANY
+  entityId   String
+  action     String // CREATED | UPDATED | DELETED | STAGE_CHANGED
+  metadata   String? // JSON string
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("Activity")
+}
