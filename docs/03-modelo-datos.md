@@ -231,3 +231,19 @@ Cuando armes el prompt de seed, conviene generar:
 - Algunos Comments y Notifications de ejemplo.
 
 Esto se puede pedir como prompt separado usando `Prisma seed.ts` + una librería como `@faker-js/faker`.
+
+## Notas de implementación
+
+El archivo `backend/prisma/schema.prisma` fue generado y validado contra SQL Server. Las siguientes decisiones de implementación divergen del modelo "ideal" documentado arriba debido a limitaciones del conector Prisma/SQL Server o a características del lenguaje no soportadas:
+
+### 1. Enums como String
+SQL Server no soporta enums nativos en Prisma. Todos los campos que en el documento se listan como tipo `enum` (`DealStage`, `CustomerStatus`, `CompanyStatus`, `CompanySize`, `TaskPriority`, `TaskStatus`, `RoleName`, `CommentEntityType`, `FileEntityType`, `NotificationType`, `ActivityEntityType`, `ActivityAction`) se almacenan como `String` con comentarios inline indicando los valores permitidos. La validación de valores se realiza en la capa de aplicación mediante schemas Zod.
+
+### 2. JSON como String
+Los campos `Role.permissions`, `Contact.socialLinks` y `Activity.metadata` se definen como `String` en lugar de `Json` porque el conector SQL Server de Prisma no expone el tipo JSON nativo. La serialización/deserialización se maneja en la capa de repository.
+
+### 3. onDelete / onUpdate: NoAction en entidades multi-tenant
+Las entidades Customer, Deal y Task forman un grafo de relaciones con Organization, Company y User que genera múltiples rutas de cascade (ciclos referenciales). Para evitarlo, todas las FKs dentro de estos tres modelos llevan `onDelete: NoAction` y `onUpdate: NoAction`. La limpieza de datos huerfanos se resuelve a nivel de aplicación (service layer).
+
+### 4. Relaciones polimórficas sin @relation nativa
+Comment y File referencian a Customer o Deal mediante `entityType` + `entityId`. Prisma no soporta relaciones polimórficas directas, por lo que estos campos se modelan como columnas planas (sin `@relation`). La integridad referencial se garantiza en la capa de aplicación (repository/service), no a nivel de base de datos.
