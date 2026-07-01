@@ -1,0 +1,25 @@
+---
+// Layout para páginas protegidas (/app/*). Provee QueryClientProvider + auth init.
+import "../styles/global.css"
+import { AppProvider } from "@/components/providers/AppProvider"
+import { Toaster } from "@/components/ui/sonner"
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <slot name="head" />
+  </head>
+  <body>
+    <!--
+      AppProvider inicia TanStack Query y la verificación de sesión vía refresh token.
+      Las islas de React dentro del slot heredan el QueryClientProvider.
+    -->
+    <AppProvider client:load>
+      <slot />
+    </AppProvider>
+    <Toaster client:visible />
+  </body>
+</html>
