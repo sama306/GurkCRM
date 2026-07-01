@@ -53,7 +53,7 @@
 | POST | `/auth/register` | Crea Organization + User Owner | No |
 | POST | `/auth/login` | Login, devuelve accessToken + set-cookie refreshToken | No |
 | POST | `/auth/refresh` | Rota el refresh token, devuelve nuevo accessToken | Cookie |
-| POST | `/auth/logout` | Revoca el refresh token actual | Sí |
+| POST | `/auth/logout` | Revoca el refresh token actual | No (usa cookie de refresh token) |
 | POST | `/auth/forgot-password` | Envía email con link de reseteo | No |
 | POST | `/auth/reset-password` | Setea nueva contraseña con token | No |
 | GET | `/auth/me` | Devuelve el usuario autenticado | Sí |

@@ -1,3 +1,37 @@
 ◇ injected env (13) from .env // tip: ⌁ auth for agents [www.vestauth.com]
 🚀 Servidor corriendo en http://localhost:4000
 📋 Health check: http://localhost:4000/api/v1/health
+[ERROR] SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+    at JSON.parse (<anonymous>)
+    at parse (D:\Astro\GurkCRM\backend\node_modules\body-parser\lib\types\json.js:91:21)
+    at D:\Astro\GurkCRM\backend\node_modules\body-parser\lib\read.js:162:18
+    at AsyncResource.runInAsyncScope (node:async_hooks:227:14)
+    at invokeCallback (D:\Astro\GurkCRM\backend\node_modules\raw-body\index.js:238:16)
+    at done (D:\Astro\GurkCRM\backend\node_modules\raw-body\index.js:227:7)
+    at IncomingMessage.onEnd (D:\Astro\GurkCRM\backend\node_modules\raw-body\index.js:287:7)
+    at IncomingMessage.emit (node:events:509:28)
+    at endReadableNT (node:internal/streams/readable:1735:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  expose: true,
+  statusCode: 400,
+  status: 400,
+  body: '{email:admin@gurk.com,password:Admin123!}',
+  type: 'entity.parse.failed'
+}
+[ERROR] SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+    at JSON.parse (<anonymous>)
+    at parse (D:\Astro\GurkCRM\backend\node_modules\body-parser\lib\types\json.js:91:21)
+    at D:\Astro\GurkCRM\backend\node_modules\body-parser\lib\read.js:162:18
+    at AsyncResource.runInAsyncScope (node:async_hooks:227:14)
+    at invokeCallback (D:\Astro\GurkCRM\backend\node_modules\raw-body\index.js:238:16)
+    at done (D:\Astro\GurkCRM\backend\node_modules\raw-body\index.js:227:7)
+    at IncomingMessage.onEnd (D:\Astro\GurkCRM\backend\node_modules\raw-body\index.js:287:7)
+    at IncomingMessage.emit (node:events:509:28)
+    at endReadableNT (node:internal/streams/readable:1735:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  expose: true,
+  statusCode: 400,
+  status: 400,
+  body: '{email:test@gurk.com,password:Test1234!,fullName:Test User,organizationName:Test Org}',
+  type: 'entity.parse.failed'
+}

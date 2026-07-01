@@ -198,17 +198,12 @@ export const authService = {
   async logout(refreshTokenCookie: string | undefined) {
     if (!refreshTokenCookie) return;
 
-    let decoded: { id: string };
-    try {
-      decoded = jwt.verify(refreshTokenCookie, env.JWT_REFRESH_SECRET) as { id: string };
-    } catch {
-      return;
-    }
+    const decoded = jwt.decode(refreshTokenCookie) as { id: string } | null;
+    if (!decoded?.id) return;
 
     const activeTokens = await authRepository.findActiveRefreshTokensByUserId(decoded.id);
     const storedToken = await findMatchingToken(activeTokens, refreshTokenCookie);
     if (storedToken) {
-      // Revoke ALL active tokens to prevent reuse of duplicates
       await authRepository.revokeAllUserRefreshTokens(decoded.id);
     }
   },
