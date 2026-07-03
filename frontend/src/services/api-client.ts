@@ -64,6 +64,22 @@ async function attemptRefresh(): Promise<string> {
   return newToken;
 }
 
+/* ───── Response interceptor: unwrap { success, data } envelope ───── */
+
+apiClient.interceptors.response.use((response) => {
+  if (
+    response.data &&
+    typeof response.data === "object" &&
+    "success" in response.data &&
+    "data" in response.data
+  ) {
+    response.data = response.data.data;
+  }
+  return response;
+});
+
+/* ───── Response interceptor: refresh flow ───── */
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {

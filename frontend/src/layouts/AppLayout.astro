@@ -2,6 +2,8 @@
 // Layout para páginas protegidas (/app/*). Provee QueryClientProvider + auth init.
 import "../styles/global.css"
 import { AppProvider } from "@/components/providers/AppProvider"
+import { AuthGuard } from "@/components/auth/AuthGuard"
+import { UserMenu } from "@/components/layout/UserMenu"
 import { Toaster } from "@/components/ui/sonner"
 ---
 
@@ -15,11 +17,23 @@ import { Toaster } from "@/components/ui/sonner"
   <body>
     <!--
       AppProvider inicia TanStack Query y la verificación de sesión vía refresh token.
-      Las islas de React dentro del slot heredan el QueryClientProvider.
+      AuthGuard (abajo) espera a que AppProvider termine y redirige a /login si no hay sesión.
     -->
-    <AppProvider client:load>
-      <slot />
-    </AppProvider>
+    <AppProvider client:load />
+
+    <header class="flex h-14 items-center justify-between border-b px-6">
+      <a href="/app/dashboard" class="text-lg font-bold tracking-tight">
+        GurkCRM
+      </a>
+      <UserMenu client:load />
+    </header>
+
+    <AuthGuard client:load>
+      <main class="p-6">
+        <slot />
+      </main>
+    </AuthGuard>
+
     <Toaster client:visible />
   </body>
 </html>
