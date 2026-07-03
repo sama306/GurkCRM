@@ -1,0 +1,23 @@
+---
+import "../styles/global.css"
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="GurkCRM — Accede a tu cuenta" />
+    <title>GurkCRM — <slot name="title" /></title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="flex min-h-dvh items-center justify-center bg-muted/30 p-4">
+    <div class="flex w-full max-w-sm flex-col items-center gap-6">
+      <a href="/" class="flex items-center gap-2 font-semibold text-lg tracking-tight">
+        <span class="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">G</span>
+        GurkCRM
+      </a>
+      <slot />
+    </div>
+  </body>
+</html>

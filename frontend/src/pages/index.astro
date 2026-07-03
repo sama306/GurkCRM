@@ -1,17 +1,42 @@
 ---
+import "../styles/global.css"
 
+import Navbar from "@/components/landing/Navbar.astro"
+import Hero from "@/components/landing/Hero.astro"
+import Features from "@/components/landing/Features"
+import Pricing from "@/components/landing/Pricing"
+import FAQ from "@/components/landing/FAQ"
+import Contact from "@/components/landing/Contact"
+import Footer from "@/components/landing/Footer.astro"
+import { Toaster } from "@/components/ui/sonner"
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="GurkCRM — Gestiona clientes, oportunidades, tareas y equipo en un solo lugar. El CRM simple y potente para tu negocio." />
+    <title>GurkCRM — CRM para tu negocio</title>
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="GurkCRM — CRM para tu negocio" />
+    <meta property="og:description" content="Gestiona clientes, oportunidades, tareas y equipo en un solo lugar. El CRM simple y potente para tu empresa." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://gurkcrm.com" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <Navbar />
+    <main>
+      <Hero />
+      <Features client:visible />
+      <Pricing client:visible />
+      <FAQ client:visible />
+      <Contact client:visible />
+    </main>
+    <Footer />
+    <Toaster client:visible />
+  </body>
 </html>

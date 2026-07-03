@@ -1,0 +1,12 @@
+---
+import AuthLayout from "@/layouts/AuthLayout.astro"
+import RegisterForm from "@/features/auth/components/RegisterForm"
+import { GuestGuard } from "@/components/auth/GuestGuard"
+---
+
+<AuthLayout>
+  <Fragment slot="title">Crear cuenta</Fragment>
+  <GuestGuard client:load>
+    <RegisterForm client:load />
+  </GuestGuard>
+</AuthLayout>
