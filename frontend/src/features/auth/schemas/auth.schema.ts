@@ -32,10 +32,16 @@ export const forgotPasswordSchema = z.object({
   email: z.string().email("Email inválido").max(255),
 });
 
-export const resetPasswordSchema = z.object({
-  token: z.string().min(1, "El token es requerido"),
-  newPassword: z
-    .string()
-    .min(8, "La contraseña debe tener al menos 8 caracteres")
-    .max(128),
-});
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, "El token es requerido"),
+    newPassword: z
+      .string()
+      .min(8, "La contraseña debe tener al menos 8 caracteres")
+      .max(128),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Las contraseñas no coinciden",
+    path: ["confirmPassword"],
+  });
