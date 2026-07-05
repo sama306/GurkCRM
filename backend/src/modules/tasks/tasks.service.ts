@@ -126,7 +126,7 @@ export const tasksService = {
 
     const isOwnerOrAdmin = actorRole === 'OWNER' || actorRole === 'ADMIN';
     if (!isOwnerOrAdmin && task.assigneeId !== actorId) {
-      throw new AppError(403, 'FORBIDDEN', 'No tienes permiso para editar esta tarea');
+      throw new AppError(403, 'FORBIDDEN', 'No tenés permiso para modificar una tarea asignada a otro usuario');
     }
 
     if (data.assigneeId && data.assigneeId !== task.assigneeId) {
@@ -185,7 +185,7 @@ export const tasksService = {
 
     const isOwnerOrAdmin = actorRole === 'OWNER' || actorRole === 'ADMIN';
     if (!isOwnerOrAdmin && task.assigneeId !== actorId) {
-      throw new AppError(403, 'FORBIDDEN', 'No tienes permiso para eliminar esta tarea');
+      throw new AppError(403, 'FORBIDDEN', 'No tenés permiso para eliminar una tarea asignada a otro usuario');
     }
 
     const { count } = await tasksRepository.delete(id, organizationId);
@@ -208,7 +208,7 @@ export const tasksService = {
 
     const isOwnerOrAdmin = actorRole === 'OWNER' || actorRole === 'ADMIN';
     if (!isOwnerOrAdmin && task.assigneeId !== actorId) {
-      throw new AppError(403, 'FORBIDDEN', 'No tienes permiso para cambiar el estado de esta tarea');
+      throw new AppError(403, 'FORBIDDEN', 'No tenés permiso para modificar una tarea asignada a otro usuario');
     }
 
     const { count } = await tasksRepository.updateStatus(id, organizationId, newStatus);
