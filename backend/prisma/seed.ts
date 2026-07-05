@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function randomItem<T>(arr: T[]): T {
+function randomItem<T>(arr: readonly T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
@@ -95,37 +95,59 @@ const DEAL_STAGES = ['NEW', 'CONTACTED', 'MEETING', 'PROPOSAL', 'NEGOTIATION', '
 
 const LOST_REASONS = ['Presupuesto insuficiente', 'Competidor mejor valorado', 'No hay necesidad', 'Cierre postergado', 'Contacto perdido'];
 
+// ═══════════════════════════════════════════════════════════════════════════
+// ATENCIÓN: Este seed opera EXCLUSIVAMENTE sobre la organización
+// "GurkCRM Demo". Todos los deleteMany están scopeados por
+// organizationId para NO destruir datos de otras organizaciones
+// que puedan existir en la base (ej. organizaciones creadas durante
+// testing de tenant scoping).
+// ═══════════════════════════════════════════════════════════════════════════
+
 async function main() {
-  console.log('🧹 Limpiando datos existentes...');
+  // ── 0. Roles (upsert — no se borran, se reusan si ya existen) ──────────
 
-  await prisma.activity.deleteMany();
-  await prisma.notification.deleteMany();
-  await prisma.file.deleteMany();
-  await prisma.comment.deleteMany();
-  await prisma.task.deleteMany();
-  await prisma.deal.deleteMany();
-  await prisma.customer.deleteMany();
-  await prisma.contact.deleteMany();
-  await prisma.company.deleteMany();
-  await prisma.refreshToken.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.organization.deleteMany();
-  await prisma.role.deleteMany();
-
-  // ── a. Roles ───────────────────────────────────────────────────────────
-
-  console.log('Creando Roles...');
+  console.log('Verificando Roles...');
   const roles: Record<string, string> = {};
   for (const r of roleDefs) {
-    const created = await prisma.role.create({ data: r });
-    roles[r.name] = created.id;
+    const existing = await prisma.role.findFirst({ where: { name: r.name } });
+    if (existing) {
+      roles[r.name] = existing.id;
+    } else {
+      const created = await prisma.role.create({ data: r });
+      roles[r.name] = created.id;
+    }
   }
-  console.log(`  ✓ ${roleDefs.length} roles creados`);
+  console.log(`  ✓ ${Object.keys(roles).length} roles listos`);
 
-  // ── b. Organization ────────────────────────────────────────────────────
+  // ── 1. Buscar o crear la organización demo ────────────────────────────
+
+  let org = await prisma.organization.findFirst({ where: { name: 'GurkCRM Demo' } });
+
+  if (org) {
+    console.log('Limpiando datos existentes de GurkCRM Demo...');
+    const orgId = org.id;
+
+    await prisma.activity.deleteMany({ where: { user: { organizationId: orgId } } });
+    await prisma.notification.deleteMany({ where: { user: { organizationId: orgId } } });
+    await prisma.file.deleteMany({ where: { uploadedBy: { organizationId: orgId } } });
+    await prisma.comment.deleteMany({ where: { author: { organizationId: orgId } } });
+    await prisma.task.deleteMany({ where: { organizationId: orgId } });
+    await prisma.deal.deleteMany({ where: { organizationId: orgId } });
+    await prisma.customer.deleteMany({ where: { organizationId: orgId } });
+    await prisma.contact.deleteMany({ where: { company: { organizationId: orgId } } });
+    await prisma.company.deleteMany({ where: { organizationId: orgId } });
+    await prisma.refreshToken.deleteMany({ where: { user: { organizationId: orgId } } });
+    await prisma.user.deleteMany({ where: { organizationId: orgId } });
+    await prisma.organization.deleteMany({ where: { id: orgId } });
+    console.log('  ✓ Datos de demo eliminados');
+  } else {
+    console.log('No existe GurkCRM Demo aún — se creará desde cero.');
+  }
+
+  // ── 2. Organization ────────────────────────────────────────────────────
 
   console.log('Creando Organization...');
-  const org = await prisma.organization.create({
+  org = await prisma.organization.create({
     data: {
       name: 'GurkCRM Demo',
       timezone: 'America/Argentina/Buenos_Aires',
