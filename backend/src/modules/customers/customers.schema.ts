@@ -6,8 +6,8 @@ export const createCustomerSchema = z.object({
   phone: z.string().max(50).optional(),
   address: z.string().max(500).optional(),
   notes: z.string().optional(),
-  companyId: z.string().uuid('Debe ser un UUID válido').optional(),
-  ownerId: z.string().uuid('Debe ser un UUID válido').optional(),
+  companyId: z.string().cuid('Debe ser un ID de empresa válido').optional(),
+  ownerId: z.string().cuid('Debe ser un ID de usuario válido').optional(),
   status: z
     .enum(['LEAD', 'ACTIVE', 'INACTIVE'], {
       message: 'El estado debe ser LEAD, ACTIVE o INACTIVE',
@@ -22,8 +22,8 @@ export const updateCustomerSchema = z.object({
   phone: z.string().max(50).optional(),
   address: z.string().max(500).optional(),
   notes: z.string().optional(),
-  companyId: z.string().uuid('Debe ser un UUID válido').nullable().optional(),
-  ownerId: z.string().uuid('Debe ser un UUID válido').optional(),
+  companyId: z.string().cuid('Debe ser un ID de empresa válido').nullable().optional(),
+  ownerId: z.string().cuid('Debe ser un ID de usuario válido').optional(),
   status: z.enum(['LEAD', 'ACTIVE', 'INACTIVE']).optional(),
 }).refine(
   (data) => Object.keys(data).length > 0,
