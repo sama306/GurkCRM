@@ -1,3 +1,4 @@
+import { prisma } from '../../config/prisma';
 import { AppError } from '../../shared/errors/AppError';
 import { customersRepository } from '../customers/customers.repository';
 import { companiesRepository } from '../companies/companies.repository';
@@ -216,7 +217,17 @@ export const dealsService = {
       await dealsRepository.update(id, organizationId, { lostReason: null });
     }
 
-    const moved = await dealsRepository.moveToStage(id, organizationId, newStage, newPosition);
+    let clampedPosition = Math.max(newPosition, 0);
+    const stageCount = await prisma.deal.count({
+      where: { organizationId, stage: newStage, deletedAt: null },
+    });
+    if (newStage === deal.stage) {
+      clampedPosition = Math.min(clampedPosition, stageCount - 1);
+    } else {
+      clampedPosition = Math.min(clampedPosition, stageCount);
+    }
+
+    const moved = await dealsRepository.moveToStage(id, organizationId, newStage, clampedPosition);
     if (!moved) {
       throw new AppError(404, 'DEAL_NOT_FOUND', 'Deal no encontrado');
     }

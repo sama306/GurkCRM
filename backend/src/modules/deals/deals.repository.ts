@@ -1,5 +1,5 @@
 import { prisma } from '../../config/prisma';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { DEAL_STAGES } from './deals.dto';
 
 const ALLOWED_SORT_FIELDS = [
@@ -199,8 +199,9 @@ export const dealsRepository = {
    *  - If newPosition exceeds the current max position in the target stage,
    *    a gap will be created. The service layer / frontend is responsible
    *    for sending valid positions aligned with column size.
-   *  - The interactive Prisma $transaction provides serializable isolation,
-   *    preventing race conditions from concurrent drag-and-drop operations.
+ *  - The interactive Prisma $transaction uses Serializable isolation level
+ *    explicitly (Prisma.TransactionIsolationLevel.Serializable), preventing
+ *    race conditions from concurrent drag-and-drop operations via range locks.
    *
    * ─────────────────────────────────────────────────────────────────────────
    */
@@ -282,6 +283,10 @@ export const dealsRepository = {
       }
 
       return true;
+    }, {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+      maxWait: 5000,
+      timeout: 10000,
     });
   },
 };
