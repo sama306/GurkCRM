@@ -16,8 +16,15 @@ import { Toaster } from "@/components/ui/sonner"
   </head>
   <body>
     <!--
-      AppProvider inicia TanStack Query y la verificación de sesión vía refresh token.
-      AuthGuard (abajo) espera a que AppProvider termine y redirige a /login si no hay sesión.
+      AppProvider solo inicia la verificación de sesión (refresh token).
+      NO provee QueryClientProvider porque cada isla client:load de Astro
+      es un root React independiente — el provider no llegaría al <slot />.
+
+      Cada página isla que use TanStack Query debe incluir QueryProvider
+      como raíz: <QueryProvider><Pagina /></QueryProvider>
+
+      Ver src/components/providers/QueryProvider.tsx para la documentación
+      completa de esta decisión arquitectónica.
     -->
     <AppProvider client:load />
 
