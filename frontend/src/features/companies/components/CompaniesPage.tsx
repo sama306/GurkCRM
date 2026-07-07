@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { useDebounce } from "@/hooks/useDebounce";
+import { usePermissions } from "@/utils/permissions";
 import { useCompanies, useDeleteCompany } from "@/features/companies/hooks/useCompanies";
 import { CompaniesFilters } from "./CompaniesFilters";
 import { CompaniesTable } from "./CompaniesTable";
@@ -51,6 +52,7 @@ function CompaniesPageContent() {
 
   const { data, isLoading, isError } = useCompanies(filters);
   const deleteMutation = useDeleteCompany();
+  const { canCreate } = usePermissions();
 
   const companies = data?.data ?? [];
   const meta = data?.meta;
@@ -82,10 +84,12 @@ function CompaniesPageContent() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Empresas</h1>
-        <Button onClick={handleCreateNew}>
-          <Plus className="size-4" />
-          Nueva empresa
-        </Button>
+        {canCreate && (
+          <Button onClick={handleCreateNew}>
+            <Plus className="size-4" />
+            Nueva empresa
+          </Button>
+        )}
       </div>
 
       <CompaniesFilters
@@ -102,6 +106,7 @@ function CompaniesPageContent() {
         isLoading={isLoading}
         isError={isError}
         hasFilters={hasFilters}
+        canCreate={canCreate}
         onCreateNew={handleCreateNew}
         onEdit={handleEdit}
         onDelete={setDeletingCompany}

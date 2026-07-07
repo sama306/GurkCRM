@@ -16,12 +16,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Building2, ExternalLink, MoreHorizontal, Plus } from "lucide-react";
 import type { Company } from "@/types/company";
+import { usePermissions } from "@/utils/permissions";
 
 interface CompaniesTableProps {
   companies: Company[];
   isLoading: boolean;
   isError: boolean;
   hasFilters: boolean;
+  canCreate: boolean;
   onCreateNew: () => void;
   onEdit: (company: Company) => void;
   onDelete: (company: Company) => void;
@@ -55,7 +57,7 @@ function LoadingSkeleton() {
   );
 }
 
-function EmptyState({ hasFilters, onCreateNew }: { hasFilters: boolean; onCreateNew: () => void }) {
+function EmptyState({ hasFilters, canCreate, onCreateNew }: { hasFilters: boolean; canCreate: boolean; onCreateNew: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <Building2 className="size-12 text-muted-foreground/40" />
@@ -65,7 +67,7 @@ function EmptyState({ hasFilters, onCreateNew }: { hasFilters: boolean; onCreate
           ? "Intenta ajustar los filtros de búsqueda."
           : "Todavía no hay empresas registradas."}
       </p>
-      {!hasFilters && (
+      {!hasFilters && canCreate && (
         <Button onClick={onCreateNew} className="mt-4">
           <Plus className="size-4" />
           Nueva empresa
@@ -101,10 +103,14 @@ export function CompaniesTable({
   isLoading,
   isError,
   hasFilters,
+  canCreate: _canCreate,
   onCreateNew,
   onEdit,
   onDelete,
 }: CompaniesTableProps) {
+  const { canEdit, canDelete } = usePermissions();
+  const hasActions = canEdit || canDelete;
+
   if (isLoading) return <LoadingSkeleton />;
 
   if (isError) {
@@ -116,7 +122,7 @@ export function CompaniesTable({
   }
 
   if (companies.length === 0) {
-    return <EmptyState hasFilters={hasFilters} onCreateNew={onCreateNew} />;
+    return <EmptyState hasFilters={hasFilters} canCreate={_canCreate} onCreateNew={onCreateNew} />;
   }
 
   return (
@@ -128,7 +134,7 @@ export function CompaniesTable({
           <TableHead>Sitio web</TableHead>
           <TableHead>Tamaño</TableHead>
           <TableHead>Estado</TableHead>
-          <TableHead className="w-[50px]" />
+          {hasActions && <TableHead className="w-[50px]" />}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -160,32 +166,40 @@ export function CompaniesTable({
                 <Badge variant={badge.variant}>{badge.label}</Badge>
               </TableCell>
               <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" className="size-8">
-                      <MoreHorizontal className="size-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(company);
-                      }}
-                    >
-                      Editar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(company);
-                      }}
-                    >
-                      Eliminar
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {hasActions ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon" className="size-8">
+                        <MoreHorizontal className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {canEdit && (
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(company);
+                          }}
+                        >
+                          Editar
+                        </DropdownMenuItem>
+                      )}
+                      {canDelete && (
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(company);
+                          }}
+                        >
+                          Eliminar
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <span className="text-muted-foreground/40 text-xs">—</span>
+                )}
               </TableCell>
             </TableRow>
           );
