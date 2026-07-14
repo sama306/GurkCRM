@@ -24,6 +24,10 @@ export function canDelete(role: string): boolean {
   return roleAtLeast(role, "ADMIN");
 }
 
+export function canExport(role: string): boolean {
+  return roleAtLeast(role, "SALES");
+}
+
 /**
  * Hook que expone los permisos del usuario autenticado.
  * Reutilizable en cualquier componente de módulo comercial.
@@ -37,5 +41,6 @@ export function usePermissions() {
     canCreate: canCreate(role),
     canEdit: canEdit(role),
     canDelete: canDelete(role),
+    canExport: canExport(role),
   };
 }
