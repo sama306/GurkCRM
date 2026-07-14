@@ -1,10 +1,24 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { useCompany } from "@/features/companies/hooks/useCompanies";
-import { ArrowLeft, Building2, ExternalLink, Globe, MapPin, Users } from "lucide-react";
+import { usePermissions } from "@/utils/permissions";
+import { useDeleteContact } from "@/features/contacts/hooks/useContacts";
+import { ContactsList } from "@/features/contacts/components/ContactsList";
+import { ContactFormDialog } from "@/features/contacts/components/ContactFormDialog";
+import { ArrowLeft, Building2, ExternalLink, Globe, MapPin, Plus, UserPlus, Users } from "lucide-react";
+import type { Contact } from "@/types/contact";
 
 interface CompanyDetailProps {
   id: string;
@@ -25,6 +39,34 @@ const STATUS_BADGE: Record<string, { variant: "default" | "secondary"; label: st
 
 function CompanyDetailContent({ id }: { id: string }) {
   const { data: company, isLoading, isError } = useCompany(id);
+  const { canCreate, canEdit, canDelete } = usePermissions();
+  const deleteContactMutation = useDeleteContact();
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | undefined>();
+  const [deletingContact, setDeletingContact] = useState<Contact | undefined>();
+
+  function handleAddContact() {
+    setEditingContact(undefined);
+    setContactDialogOpen(true);
+  }
+
+  function handleEditContact(contact: Contact) {
+    setEditingContact(contact);
+    setContactDialogOpen(true);
+  }
+
+  function handleDeleteContactConfirm() {
+    if (!deletingContact) return;
+    deleteContactMutation.mutate(
+      { id: deletingContact.id, companyId: id },
+      { onSuccess: () => setDeletingContact(undefined) },
+    );
+  }
+
+  function handleContactDialogClose() {
+    setContactDialogOpen(false);
+    setEditingContact(undefined);
+  }
 
   if (isLoading) {
     return (
@@ -149,6 +191,72 @@ function CompanyDetailContent({ id }: { id: string }) {
           </CardContent>
         </Card>
       </div>
+
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <UserPlus className="size-5 text-muted-foreground" />
+            <h2 className="text-lg font-semibold">Contactos</h2>
+          </div>
+          {canCreate && (
+            <Button onClick={handleAddContact} size="sm">
+              <Plus className="size-4" />
+              Agregar contacto
+            </Button>
+          )}
+        </div>
+
+        <ContactsList
+          companyId={id}
+          onEdit={handleEditContact}
+          onDelete={setDeletingContact}
+          onAddClick={handleAddContact}
+          canEdit={canEdit}
+          canDelete={canDelete}
+          canCreate={canCreate}
+        />
+      </section>
+
+      <ContactFormDialog
+        open={contactDialogOpen}
+        onClose={handleContactDialogClose}
+        companyId={id}
+        contact={editingContact}
+      />
+
+      <Dialog
+        open={!!deletingContact}
+        onOpenChange={(open) => !open && setDeletingContact(undefined)}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Eliminar contacto</DialogTitle>
+            <DialogDescription>
+              ¿Estás seguro de que querés eliminar a{" "}
+              <strong>{deletingContact?.fullName}</strong>?
+              Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeletingContact(undefined)}
+              disabled={deleteContactMutation.isPending}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDeleteContactConfirm}
+              disabled={deleteContactMutation.isPending}
+            >
+              {deleteContactMutation.isPending ? "Eliminando..." : "Eliminar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
