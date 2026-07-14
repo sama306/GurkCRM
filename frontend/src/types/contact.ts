@@ -1,0 +1,27 @@
+export interface Contact {
+  id: string;
+  companyId: string;
+  fullName: string;
+  position: string | null;
+  email: string | null;
+  phone: string | null;
+  socialLinks: { platform: string; url: string }[] | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateContactInput {
+  fullName: string;
+  position?: string;
+  email?: string;
+  phone?: string;
+  socialLinks?: { platform: string; url: string }[];
+}
+
+export interface UpdateContactInput {
+  fullName?: string;
+  position?: string;
+  email?: string;
+  phone?: string;
+  socialLinks?: { platform: string; url: string }[];
+}
