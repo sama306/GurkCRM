@@ -11,7 +11,7 @@ import {
 
 const router = Router();
 
-router.get('/', requireAuth, requireRole(['ADMIN', 'OWNER']), usersController.list);
+router.get('/', requireAuth, requireRole(['VIEWER', 'SALES', 'ADMIN', 'OWNER']), usersController.list);
 
 router.patch('/me', requireAuth, validate(updateOwnProfileSchema), usersController.updateMe);
 router.patch('/me/password', requireAuth, validate(changePasswordSchema), usersController.changeMyPassword);
