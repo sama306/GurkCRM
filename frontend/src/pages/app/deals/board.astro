@@ -1,0 +1,12 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro"
+import { KanbanBoard } from "@/features/deals/components/KanbanBoard"
+---
+
+<AppLayout>
+  <Fragment slot="head">
+    <title>Kanban — GurkCRM</title>
+  </Fragment>
+
+  <KanbanBoard client:load />
+</AppLayout>

@@ -213,6 +213,10 @@ export const dealsService = {
       throw new AppError(400, 'LOST_REASON_REQUIRED', 'lostReason es requerido al mover un deal a la columna LOST');
     }
 
+    if (newStage === 'LOST' && lostReason) {
+      await dealsRepository.update(id, organizationId, { lostReason });
+    }
+
     if (deal.stage === 'LOST' && newStage !== 'LOST' && deal.lostReason) {
       await dealsRepository.update(id, organizationId, { lostReason: null });
     }
