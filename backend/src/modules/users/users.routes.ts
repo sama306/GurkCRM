@@ -11,11 +11,12 @@ import {
 
 const router = Router();
 
-router.get('/', requireAuth, requireRole(['VIEWER', 'SALES', 'ADMIN', 'OWNER']), usersController.list);
+router.get('/', requireAuth, requireRole(['ADMIN', 'OWNER']), usersController.list);
 
 router.patch('/me', requireAuth, validate(updateOwnProfileSchema), usersController.updateMe);
 router.patch('/me/password', requireAuth, validate(changePasswordSchema), usersController.changeMyPassword);
 
+router.get('/lookup', requireAuth, usersController.lookup);
 router.get('/:id', requireAuth, requireRole(['ADMIN', 'OWNER']), usersController.getById);
 router.patch('/:id', requireAuth, requireRole(['ADMIN', 'OWNER']), validate(updateUserSchema), usersController.update);
 

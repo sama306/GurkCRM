@@ -16,6 +16,7 @@ import { useCustomers, useDeleteCustomer } from "@/features/customers/hooks/useC
 import { customersService } from "@/services/customers.service";
 import { CustomersFilters } from "./CustomersFilters";
 import { CustomersTable } from "./CustomersTable";
+import { CustomerFormDialog } from "./CustomerFormDialog";
 import { Pagination } from "@/features/companies/components/Pagination";
 import type { Customer, CustomerFilters } from "@/types/customer";
 
@@ -33,6 +34,8 @@ function CustomersPageContent() {
   const [companyId, setCompanyId] = useState("");
   const [ownerId, setOwnerId] = useState("");
   const [page, setPage] = useState(1);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | undefined>();
   const [deletingCustomer, setDeletingCustomer] = useState<Customer | undefined>();
   const [exporting, setExporting] = useState(false);
 
@@ -53,17 +56,32 @@ function CustomersPageContent() {
 
   const { data, isLoading, isError } = useCustomers(filters);
   const deleteMutation = useDeleteCustomer();
-  const { canCreate, canExport, canEdit, canDelete } = usePermissions();
+  const { canCreate, canExport } = usePermissions();
 
   const customers = data?.data ?? [];
   const meta = data?.meta;
   const hasFilters = !!(debouncedSearch || status || companyId || ownerId);
+
+  function handleCreateNew() {
+    setEditingCustomer(undefined);
+    setDialogOpen(true);
+  }
+
+  function handleEdit(customer: Customer) {
+    setEditingCustomer(customer);
+    setDialogOpen(true);
+  }
 
   function handleDeleteConfirm() {
     if (!deletingCustomer) return;
     deleteMutation.mutate(deletingCustomer.id, {
       onSuccess: () => setDeletingCustomer(undefined),
     });
+  }
+
+  function handleDialogClose() {
+    setDialogOpen(false);
+    setEditingCustomer(undefined);
   }
 
   async function handleExport() {
@@ -92,7 +110,7 @@ function CustomersPageContent() {
             </Button>
           )}
           {canCreate && (
-            <Button onClick={() => {}}>
+            <Button onClick={handleCreateNew}>
               <Plus className="size-4" />
               Nuevo cliente
             </Button>
@@ -117,8 +135,8 @@ function CustomersPageContent() {
         isError={isError}
         hasFilters={hasFilters}
         canCreate={canCreate}
-        onCreateNew={() => {}}
-        onEdit={() => {}}
+        onCreateNew={handleCreateNew}
+        onEdit={handleEdit}
         onDelete={setDeletingCustomer}
       />
 
@@ -130,6 +148,12 @@ function CustomersPageContent() {
           onPageChange={setPage}
         />
       )}
+
+      <CustomerFormDialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        customer={editingCustomer}
+      />
 
       <Dialog open={!!deletingCustomer} onOpenChange={(open) => !open && setDeletingCustomer(undefined)}>
         <DialogContent className="sm:max-w-md">

@@ -63,6 +63,7 @@
 | Método | Endpoint | Descripción | Rol mínimo |
 |---|---|---|---|
 | GET | `/users` | Lista usuarios de la organización | Admin |
+| GET | `/users/lookup` | Lista acotada `{ id, fullName }` solo de usuarios activos — para poblar selects sin exponer datos sensibles | Todos |
 | GET | `/users/:id` | Detalle de usuario | Admin |
 | PATCH | `/users/:id` | Editar usuario (rol, activo/inactivo) | Admin |
 | PATCH | `/users/me` | Editar perfil propio | Todos |

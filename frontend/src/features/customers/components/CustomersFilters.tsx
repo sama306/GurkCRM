@@ -42,7 +42,7 @@ export function CustomersFilters({
   const { data: usersData } = useUsers();
 
   const companies = companiesData?.data ?? [];
-  const users = usersData?.data ?? [];
+  const users = usersData ?? [];
 
   return (
     <div className="flex flex-wrap items-center gap-3">

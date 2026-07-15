@@ -59,6 +59,11 @@ export const usersService = {
     };
   },
 
+  async lookupUsers(organizationId: string): Promise<Array<{ id: string; fullName: string }>> {
+    const users = await usersRepository.findActiveByOrganization(organizationId);
+    return users.map((u) => ({ id: u.id, fullName: u.fullName }));
+  },
+
   async getUserById(id: string, organizationId: string): Promise<UserResponseDTO> {
     const user = await usersRepository.findById(id, organizationId);
     if (!user) {

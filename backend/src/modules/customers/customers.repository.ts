@@ -7,7 +7,7 @@ const ALLOWED_SORT_FIELDS = [
 type SortField = typeof ALLOWED_SORT_FIELDS[number];
 
 export const customersRepository = {
-  findAll(
+  async findAll(
     organizationId: string,
     filters: {
       page?: number;
@@ -30,10 +30,15 @@ export const customersRepository = {
     };
 
     if (filters?.search) {
-      where.OR = [
-        { fullName: { contains: filters.search } },
-        { email: { contains: filters.search } },
-      ];
+      const searchTerm = `%${filters.search}%`;
+      const matching = await prisma.$queryRaw<Array<{ id: string }>>`
+        SELECT [id] FROM [Customer]
+        WHERE [organizationId] = ${organizationId}
+        AND [deletedAt] IS NULL
+        AND ([fullName] COLLATE Modern_Spanish_CI_AI LIKE ${searchTerm}
+             OR [email] COLLATE Modern_Spanish_CI_AI LIKE ${searchTerm})
+      `;
+      where.id = { in: matching.map((r) => r.id) };
     }
 
     if (filters?.status) {
@@ -132,7 +137,7 @@ export const customersRepository = {
     });
   },
 
-  findAllForExport(
+  async findAllForExport(
     organizationId: string,
     filters: {
       search?: string;
@@ -147,10 +152,15 @@ export const customersRepository = {
     };
 
     if (filters?.search) {
-      where.OR = [
-        { fullName: { contains: filters.search } },
-        { email: { contains: filters.search } },
-      ];
+      const searchTerm = `%${filters.search}%`;
+      const matching = await prisma.$queryRaw<Array<{ id: string }>>`
+        SELECT [id] FROM [Customer]
+        WHERE [organizationId] = ${organizationId}
+        AND [deletedAt] IS NULL
+        AND ([fullName] COLLATE Modern_Spanish_CI_AI LIKE ${searchTerm}
+             OR [email] COLLATE Modern_Spanish_CI_AI LIKE ${searchTerm})
+      `;
+      where.id = { in: matching.map((r) => r.id) };
     }
 
     if (filters?.status) {

@@ -3,7 +3,7 @@ import { usersService } from "@/services/users.service";
 
 export function useUsers() {
   return useQuery({
-    queryKey: ["users"],
+    queryKey: ["users-lookup"],
     queryFn: () => usersService.getUsers(),
   });
 }
