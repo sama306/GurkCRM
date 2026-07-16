@@ -92,6 +92,15 @@ export const usersService = {
       throw new AppError(404, 'USER_NOT_FOUND', 'Usuario no encontrado');
     }
 
+    // Jerarquía de roles: ADMIN solo puede modificar SALES y VIEWER
+    if (actorRole === 'ADMIN' && (target.role.name === 'ADMIN' || target.role.name === 'OWNER')) {
+      throw new AppError(
+        403,
+        'HIERARCHY_ERROR',
+        'Solo un Owner puede modificar el rol de un Admin o de otro Owner.',
+      );
+    }
+
     if (target.role.name === 'OWNER') {
       const ownerCount = await usersRepository.countOwnerUsers(organizationId);
       if (ownerCount <= 1) {
@@ -130,6 +139,15 @@ export const usersService = {
     const target = await usersRepository.findById(targetId, organizationId);
     if (!target) {
       throw new AppError(404, 'USER_NOT_FOUND', 'Usuario no encontrado');
+    }
+
+    // Jerarquía de roles: ADMIN solo puede activar/desactivar SALES y VIEWER
+    if (actorRole === 'ADMIN' && (target.role.name === 'ADMIN' || target.role.name === 'OWNER')) {
+      throw new AppError(
+        403,
+        'HIERARCHY_ERROR',
+        'Solo un Owner puede activar o desactivar un Admin o un Owner.',
+      );
     }
 
     if (!isActive && target.role.name === 'OWNER') {

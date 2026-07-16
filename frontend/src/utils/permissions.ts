@@ -28,6 +28,10 @@ export function canExport(role: string): boolean {
   return roleAtLeast(role, "SALES");
 }
 
+export function canManageUsers(role: string): boolean {
+  return role === "ADMIN" || role === "OWNER";
+}
+
 /**
  * Hook que expone los permisos del usuario autenticado.
  * Reutilizable en cualquier componente de módulo comercial.

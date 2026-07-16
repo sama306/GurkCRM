@@ -4,6 +4,7 @@ import "../styles/global.css"
 import { AppProvider } from "@/components/providers/AppProvider"
 import { AuthGuard } from "@/components/auth/AuthGuard"
 import { UserMenu } from "@/components/layout/UserMenu"
+import { AppNavLinks } from "@/components/layout/AppNavLinks"
 import { Toaster } from "@/components/ui/sonner"
 ---
 
@@ -29,9 +30,20 @@ import { Toaster } from "@/components/ui/sonner"
     <AppProvider client:load />
 
     <header class="flex h-14 items-center justify-between border-b px-6">
-      <a href="/app/dashboard" class="text-lg font-bold tracking-tight">
-        GurkCRM
-      </a>
+      <div class="flex items-center gap-6">
+        <a href="/app/dashboard" class="text-lg font-bold tracking-tight">
+          GurkCRM
+        </a>
+        <nav class="hidden items-center gap-4 md:flex">
+          <a
+            href="/app/dashboard"
+            class="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Dashboard
+          </a>
+          <AppNavLinks client:load />
+        </nav>
+      </div>
       <UserMenu client:load />
     </header>
 

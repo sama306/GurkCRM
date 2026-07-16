@@ -56,6 +56,24 @@
 | Eliminar registros | ✅ | ✅ | ❌ | ❌ |
 | Ver Dashboard/Analytics | ✅ | ✅ | ✅ | ✅ |
 
+### Jerarquía de roles para cambios de rol
+
+Al cambiar el rol de un usuario (PATCH `/users/:id`), el actor debe respetar la jerarquía:
+
+| Actor \ Target | OWNER | ADMIN | SALES | VIEWER |
+|---|---|---|---|---|
+| **OWNER** | ✅ (si queda ≥1 OWNER) | ✅ | ✅ | ✅ |
+| **ADMIN** | ❌ | ❌ | ✅ | ✅ |
+| **SALES** | ❌ | ❌ | ❌ | ❌ |
+| **VIEWER** | ❌ | ❌ | ❌ | ❌ |
+
+Reglas:
+- **OWNER** puede cambiar el rol de cualquiera (sujeto a la restricción de no dejar la organización sin al menos un OWNER activo).
+- **ADMIN** solo puede cambiar el rol de usuarios con roles inferiores (SALES, VIEWER). No puede modificar a otros ADMIN ni a OWNER.
+- **SALES** y **VIEWER** no pueden gestionar usuarios en absoluto (bloqueado por `requireRole`).
+- Un usuario nunca puede cambiarse su propio rol.
+- La misma jerarquía aplica al activar/desactivar usuarios.
+
 > Este permiso granular se puede modelar en el campo `Role.permissions` (JSON) para no hardcodear la lógica en el middleware, permitiendo a futuro roles custom.
 
 ## Implementación técnica
