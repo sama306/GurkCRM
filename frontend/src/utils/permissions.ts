@@ -44,3 +44,32 @@ export function usePermissions() {
     canExport: canExport(role),
   };
 }
+
+/**
+ * Task permissions — a diferencia de canEdit/canDelete genéricos que solo
+ * miran el rol, estas funciones reciben la task completa + userId del
+ * usuario autenticado, porque el permiso depende de datos del recurso:
+ *  - ADMIN/OWNER → siempre true
+ *  - SALES        → true solo si task.assigneeId === userId
+ *  - VIEWER       → siempre false
+ */
+
+export function canEditTask(
+  userRole: string,
+  userId: string,
+  task: { assigneeId: string },
+): boolean {
+  if (userRole === "ADMIN" || userRole === "OWNER") return true;
+  if (userRole === "SALES") return task.assigneeId === userId;
+  return false;
+}
+
+export function canDeleteTask(
+  userRole: string,
+  userId: string,
+  task: { assigneeId: string },
+): boolean {
+  if (userRole === "ADMIN" || userRole === "OWNER") return true;
+  if (userRole === "SALES") return task.assigneeId === userId;
+  return false;
+}
