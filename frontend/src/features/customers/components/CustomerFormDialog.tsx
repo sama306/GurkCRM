@@ -33,7 +33,7 @@ import {
 } from "@/features/customers/schemas/customer.schema";
 import { useCreateCustomer, useUpdateCustomer } from "@/features/customers/hooks/useCustomers";
 import { useCompanies } from "@/features/companies/hooks/useCompanies";
-import { useUsers } from "@/features/customers/hooks/useUsers";
+import { useUsers } from "@/hooks/useUsers";
 import type { Customer } from "@/types/customer";
 import { useAuthStore } from "@/stores/auth.store";
 

@@ -7,41 +7,41 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
-import { useCompanies } from "@/features/companies/hooks/useCompanies";
 import { useUsers } from "@/hooks/useUsers";
+import { TASK_STATUSES, TASK_PRIORITIES } from "@/features/tasks/schemas/task.schema";
+
+interface TasksFiltersProps {
+  search: string;
+  status: string;
+  priority: string;
+  assigneeId: string;
+  onSearchChange: (value: string) => void;
+  onStatusChange: (value: string) => void;
+  onPriorityChange: (value: string) => void;
+  onAssigneeChange: (value: string) => void;
+}
 
 const STATUS_OPTIONS = [
   { value: "", label: "Todos los estados" },
-  { value: "LEAD", label: "Lead" },
-  { value: "ACTIVE", label: "Activo" },
-  { value: "INACTIVE", label: "Inactivo" },
-] as const;
+  ...TASK_STATUSES.map((s) => ({ value: s, label: s === "PENDING" ? "Pendiente" : s === "IN_PROGRESS" ? "En progreso" : "Completada" })),
+];
 
-interface CustomersFiltersProps {
-  search: string;
-  status: string;
-  companyId: string;
-  ownerId: string;
-  onSearchChange: (value: string) => void;
-  onStatusChange: (value: string) => void;
-  onCompanyChange: (value: string) => void;
-  onOwnerChange: (value: string) => void;
-}
+const PRIORITY_OPTIONS = [
+  { value: "", label: "Todas las prioridades" },
+  ...TASK_PRIORITIES.map((p) => ({ value: p, label: p === "LOW" ? "Baja" : p === "MEDIUM" ? "Media" : "Alta" })),
+];
 
-export function CustomersFilters({
+export function TasksFilters({
   search,
   status,
-  companyId,
-  ownerId,
+  priority,
+  assigneeId,
   onSearchChange,
   onStatusChange,
-  onCompanyChange,
-  onOwnerChange,
-}: CustomersFiltersProps) {
-  const { data: companiesData } = useCompanies({ limit: 200, sortBy: "name", order: "asc" });
+  onPriorityChange,
+  onAssigneeChange,
+}: TasksFiltersProps) {
   const { data: usersData } = useUsers();
-
-  const companies = companiesData?.data ?? [];
   const users = usersData ?? [];
 
   return (
@@ -49,7 +49,7 @@ export function CustomersFilters({
       <div className="relative flex-1 min-w-[200px] max-w-sm">
         <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Buscar clientes..."
+          placeholder="Buscar tareas..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           className="pl-8"
@@ -67,26 +67,25 @@ export function CustomersFilters({
           ))}
         </SelectContent>
       </Select>
-      <Select value={companyId} onValueChange={onCompanyChange}>
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Empresa" />
+      <Select value={priority} onValueChange={onPriorityChange}>
+        <SelectTrigger className="w-[160px]">
+          <SelectValue placeholder="Prioridad" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">Todas las empresas</SelectItem>
-          {companies.map((c) => (
-            <SelectItem key={c.id} value={c.id}>
-              {c.name}
+          {PRIORITY_OPTIONS.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
+              {opt.label}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      <Select value={ownerId} onValueChange={onOwnerChange}>
+      <Select value={assigneeId} onValueChange={onAssigneeChange}>
         <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Responsable" />
+          <SelectValue placeholder="Asignado a" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="">Todos los responsables</SelectItem>
-          {users.map((u) => (
+          {users.map((u: { id: string; fullName: string }) => (
             <SelectItem key={u.id} value={u.id}>
               {u.fullName}
             </SelectItem>
