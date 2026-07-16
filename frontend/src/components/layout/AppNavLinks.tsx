@@ -15,6 +15,20 @@ export function AppNavLinks() {
           Usuarios
         </a>
       )}
+      <a
+        href="/app/settings"
+        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        Mi perfil
+      </a>
+      {canManageUsers(role) && (
+        <a
+          href="/app/settings/organization"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Organización
+        </a>
+      )}
     </>
   );
 }

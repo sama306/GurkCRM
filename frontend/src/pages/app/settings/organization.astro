@@ -1,0 +1,17 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro"
+import { OrganizationForm } from "@/features/settings/components/OrganizationForm"
+import { RoleGuard } from "@/components/auth/RoleGuard"
+---
+
+<AppLayout>
+  <Fragment slot="head">
+    <title>Configuración de organización — GurkCRM</title>
+  </Fragment>
+
+  <RoleGuard allowedRoles={["ADMIN", "OWNER"]} client:load>
+    <div class="mx-auto max-w-2xl">
+      <OrganizationForm client:load />
+    </div>
+  </RoleGuard>
+</AppLayout>
