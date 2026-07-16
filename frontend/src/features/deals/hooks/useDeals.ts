@@ -1,0 +1,162 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { arrayMove } from "@dnd-kit/sortable";
+import { toast } from "sonner";
+import type { AxiosError } from "axios";
+import { dealsService } from "@/services/deals.service";
+import type {
+  DealFilters,
+  CreateDealInput,
+  UpdateDealInput,
+  ChangeStageInput,
+  Deal,
+  DealBoard,
+  DealStage,
+} from "@/types/deal";
+
+function getErrorMessage(error: unknown): string {
+  const axiosError = error as AxiosError<{ error: { message: string } }>;
+  return (
+    axiosError.response?.data?.error?.message ?? "Ocurrió un error inesperado"
+  );
+}
+
+export function useDeals(filters: DealFilters) {
+  return useQuery({
+    queryKey: ["deals", filters],
+    queryFn: () => dealsService.getDeals(filters),
+  });
+}
+
+export function useDealsBoard() {
+  return useQuery({
+    queryKey: ["deals", "board"],
+    queryFn: () => dealsService.getDealsBoard(),
+    staleTime: 0,
+  });
+}
+
+export function useDeal(id: string) {
+  return useQuery({
+    queryKey: ["deals", id],
+    queryFn: () => dealsService.getDealById(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateDeal() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateDealInput) => dealsService.createDeal(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["deals"] });
+      queryClient.invalidateQueries({ queryKey: ["deals", "board"] });
+      toast.success("Negocio creado correctamente");
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+}
+
+export function useUpdateDeal() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateDealInput }) =>
+      dealsService.updateDeal(id, data),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["deals"] });
+      queryClient.invalidateQueries({ queryKey: ["deals", "board"] });
+      queryClient.invalidateQueries({ queryKey: ["deals", variables.id] });
+      toast.success("Negocio actualizado correctamente");
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+}
+
+export function useChangeDealStage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ChangeStageInput }) =>
+      dealsService.changeDealStage(id, data),
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ["deals", "board"] });
+
+      const previousBoard = queryClient.getQueryData<DealBoard>(["deals", "board"]);
+      if (!previousBoard) return { previousBoard };
+
+      const updatedBoard: DealBoard = { ...previousBoard };
+
+      let sourceStage: DealStage | undefined;
+      let dealToMove: Deal | undefined;
+      let sourceIdx = -1;
+
+      for (const stage of Object.keys(updatedBoard) as DealStage[]) {
+        const idx = updatedBoard[stage].findIndex((d) => d.id === id);
+        if (idx !== -1) {
+          sourceStage = stage;
+          sourceIdx = idx;
+          dealToMove = updatedBoard[stage][idx];
+          break;
+        }
+      }
+
+      if (!dealToMove || !sourceStage) return { previousBoard };
+
+      const targetStage = data.stage as DealStage;
+      const updatedDeal: Deal = {
+        ...dealToMove,
+        stage: data.stage,
+        position: data.position,
+        ...(data.lostReason ? { lostReason: data.lostReason } : {}),
+      };
+
+      if (sourceStage === targetStage) {
+        const arr = [...updatedBoard[sourceStage]];
+        updatedBoard[sourceStage] = arrayMove(arr, sourceIdx, data.position);
+        updatedBoard[sourceStage][data.position] = updatedDeal;
+      } else {
+        updatedBoard[sourceStage] = [
+          ...updatedBoard[sourceStage].slice(0, sourceIdx),
+          ...updatedBoard[sourceStage].slice(sourceIdx + 1),
+        ];
+        const targetArr = [...(updatedBoard[targetStage] || [])];
+        targetArr.splice(data.position, 0, updatedDeal);
+        updatedBoard[targetStage] = targetArr;
+      }
+
+      queryClient.setQueryData<DealBoard>(["deals", "board"], updatedBoard);
+      return { previousBoard };
+    },
+    onError: (error, _variables, context) => {
+      if (context?.previousBoard) {
+        queryClient.setQueryData(["deals", "board"], context.previousBoard);
+      }
+      toast.error(getErrorMessage(error));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["deals", "board"] });
+      queryClient.invalidateQueries({ queryKey: ["deals"] });
+    },
+  });
+}
+
+export function useDeleteDeal() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => dealsService.deleteDeal(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["deals"] });
+      queryClient.invalidateQueries({ queryKey: ["deals", "board"] });
+      toast.success("Negocio eliminado correctamente");
+    },
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
+    },
+  });
+}

@@ -41,6 +41,14 @@ export const usersRepository = {
     ]);
   },
 
+  findActiveByOrganization(organizationId: string) {
+    return prisma.user.findMany({
+      where: { organizationId, isActive: true },
+      select: { id: true, fullName: true },
+      orderBy: { fullName: 'asc' },
+    });
+  },
+
   findById(id: string, organizationId: string) {
     return prisma.user.findFirst({
       where: { id, organizationId },

@@ -73,7 +73,14 @@ apiClient.interceptors.response.use((response) => {
     "success" in response.data &&
     "data" in response.data
   ) {
-    response.data = response.data.data;
+    if ("meta" in response.data) {
+      // Paginated response: preserve meta alongside data
+      // so it becomes { data: T[], meta: { page, limit, total, totalPages } }
+      response.data = { data: response.data.data, meta: response.data.meta };
+    } else {
+      // Single-resource response: unwrap directly
+      response.data = response.data.data;
+    }
   }
   return response;
 });

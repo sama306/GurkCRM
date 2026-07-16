@@ -1,0 +1,12 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro"
+import { TasksPage } from "@/features/tasks/components/TasksPage"
+---
+
+<AppLayout>
+  <Fragment slot="head">
+    <title>Tareas — GurkCRM</title>
+  </Fragment>
+
+  <TasksPage client:load />
+</AppLayout>

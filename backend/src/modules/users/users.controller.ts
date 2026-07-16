@@ -24,6 +24,15 @@ export const usersController = {
     });
   },
 
+  async lookup(req: Request, res: Response) {
+    const organizationId = req.user!.organizationId;
+    const users = await usersService.lookupUsers(organizationId);
+    res.status(200).json({
+      success: true,
+      data: users,
+    });
+  },
+
   async getById(req: Request, res: Response) {
     const organizationId = req.user!.organizationId;
     const id = req.params.id as string;

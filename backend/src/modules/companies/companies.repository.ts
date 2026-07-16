@@ -5,7 +5,7 @@ const ALLOWED_SORT_FIELDS = ['name', 'industry', 'status', 'size', 'createdAt', 
 type SortField = typeof ALLOWED_SORT_FIELDS[number];
 
 export const companiesRepository = {
-  findAll(
+  async findAll(
     organizationId: string,
     filters: {
       page?: number;
@@ -28,7 +28,14 @@ export const companiesRepository = {
     };
 
     if (filters?.search) {
-      where.name = { contains: filters.search };
+      const searchTerm = `%${filters.search}%`;
+      const matching = await prisma.$queryRaw<Array<{ id: string }>>`
+        SELECT [id] FROM [Company]
+        WHERE [organizationId] = ${organizationId}
+        AND [deletedAt] IS NULL
+        AND [name] COLLATE Modern_Spanish_CI_AI LIKE ${searchTerm}
+      `;
+      where.id = { in: matching.map((r) => r.id) };
     }
 
     if (filters?.industry) {

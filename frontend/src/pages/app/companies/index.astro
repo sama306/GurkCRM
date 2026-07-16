@@ -1,0 +1,12 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro"
+import { CompaniesPage } from "@/features/companies/components/CompaniesPage"
+---
+
+<AppLayout>
+  <Fragment slot="head">
+    <title>Empresas — GurkCRM</title>
+  </Fragment>
+
+  <CompaniesPage client:load />
+</AppLayout>
