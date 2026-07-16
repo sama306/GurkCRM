@@ -74,10 +74,6 @@ function KanbanBoardInner() {
 
     if (activeStage === targetStage && activeIdx === position) return;
 
-    if (activeStage === targetStage && activeIdx < position) {
-      position -= 1;
-    }
-
     const activeDeal = boardData[activeStage as DealStage]?.[activeIdx];
     let lostReason: string | undefined;
 

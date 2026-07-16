@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { arrayMove } from "@dnd-kit/sortable";
 import { toast } from "sonner";
 import type { AxiosError } from "axios";
 import { dealsService } from "@/services/deals.service";
@@ -86,40 +87,49 @@ export function useChangeDealStage() {
       await queryClient.cancelQueries({ queryKey: ["deals", "board"] });
 
       const previousBoard = queryClient.getQueryData<DealBoard>(["deals", "board"]);
+      if (!previousBoard) return { previousBoard };
 
-      if (previousBoard) {
-        const stages = Object.keys(previousBoard) as DealStage[];
-        let dealToMove: Deal | undefined;
+      const updatedBoard: DealBoard = { ...previousBoard };
 
-        const updatedBoard: DealBoard = { ...previousBoard };
-        for (const stage of stages) {
-          const idx = updatedBoard[stage].findIndex((d) => d.id === id);
-          if (idx !== -1) {
-            dealToMove = updatedBoard[stage][idx];
-            updatedBoard[stage] = [
-              ...updatedBoard[stage].slice(0, idx),
-              ...updatedBoard[stage].slice(idx + 1),
-            ];
-            break;
-          }
+      let sourceStage: DealStage | undefined;
+      let dealToMove: Deal | undefined;
+      let sourceIdx = -1;
+
+      for (const stage of Object.keys(updatedBoard) as DealStage[]) {
+        const idx = updatedBoard[stage].findIndex((d) => d.id === id);
+        if (idx !== -1) {
+          sourceStage = stage;
+          sourceIdx = idx;
+          dealToMove = updatedBoard[stage][idx];
+          break;
         }
-
-        if (dealToMove) {
-          const targetStage = data.stage as DealStage;
-          const updatedDeal: Deal = {
-            ...dealToMove,
-            stage: data.stage,
-            position: data.position,
-            ...(data.lostReason ? { lostReason: data.lostReason } : {}),
-          };
-          const targetArr = [...(updatedBoard[targetStage] || [])];
-          targetArr.splice(data.position, 0, updatedDeal);
-          updatedBoard[targetStage] = targetArr;
-        }
-
-        queryClient.setQueryData<DealBoard>(["deals", "board"], updatedBoard);
       }
 
+      if (!dealToMove || !sourceStage) return { previousBoard };
+
+      const targetStage = data.stage as DealStage;
+      const updatedDeal: Deal = {
+        ...dealToMove,
+        stage: data.stage,
+        position: data.position,
+        ...(data.lostReason ? { lostReason: data.lostReason } : {}),
+      };
+
+      if (sourceStage === targetStage) {
+        const arr = [...updatedBoard[sourceStage]];
+        updatedBoard[sourceStage] = arrayMove(arr, sourceIdx, data.position);
+        updatedBoard[sourceStage][data.position] = updatedDeal;
+      } else {
+        updatedBoard[sourceStage] = [
+          ...updatedBoard[sourceStage].slice(0, sourceIdx),
+          ...updatedBoard[sourceStage].slice(sourceIdx + 1),
+        ];
+        const targetArr = [...(updatedBoard[targetStage] || [])];
+        targetArr.splice(data.position, 0, updatedDeal);
+        updatedBoard[targetStage] = targetArr;
+      }
+
+      queryClient.setQueryData<DealBoard>(["deals", "board"], updatedBoard);
       return { previousBoard };
     },
     onError: (error, _variables, context) => {
