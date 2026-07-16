@@ -71,6 +71,14 @@ export const usersRepository = {
     return prisma.role.findFirst({ where: { name } });
   },
 
+  findRoleById(id: string) {
+    return prisma.role.findUnique({ where: { id } });
+  },
+
+  findAllRoles() {
+    return prisma.role.findMany({ orderBy: { name: 'asc' } });
+  },
+
   countOwnerUsers(organizationId: string) {
     return prisma.user.count({
       where: {

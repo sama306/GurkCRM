@@ -59,6 +59,11 @@ export const usersService = {
     };
   },
 
+  async listRoles(): Promise<Array<{ id: string; name: string }>> {
+    const roles = await usersRepository.findAllRoles();
+    return roles.map((r) => ({ id: r.id, name: r.name }));
+  },
+
   async lookupUsers(organizationId: string): Promise<Array<{ id: string; fullName: string }>> {
     const users = await usersRepository.findActiveByOrganization(organizationId);
     return users.map((u) => ({ id: u.id, fullName: u.fullName }));
@@ -93,11 +98,24 @@ export const usersService = {
     }
 
     // Jerarquía de roles: ADMIN solo puede modificar SALES y VIEWER
+    const newRole = await usersRepository.findRoleById(newRoleId);
+    if (!newRole) {
+      throw new AppError(400, 'INVALID_ROLE', 'El rol especificado no existe');
+    }
+
+    if (actorRole === 'ADMIN' && newRole.name === 'OWNER') {
+      throw new AppError(
+        403,
+        'HIERARCHY_ERROR',
+        'Un Admin no puede asignar el rol Owner.',
+      );
+    }
+
     if (actorRole === 'ADMIN' && (target.role.name === 'ADMIN' || target.role.name === 'OWNER')) {
       throw new AppError(
         403,
         'HIERARCHY_ERROR',
-        'Solo un Owner puede modificar el rol de un Admin o de otro Owner.',
+        'Solo un Owner puede modificar el rol de un Admin o de un Owner.',
       );
     }
 

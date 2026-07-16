@@ -17,31 +17,15 @@ import {
 } from "@/components/ui/select";
 import { Users } from "lucide-react";
 import type { User, UpdateUserInput } from "@/types/user";
+import type { RoleOption } from "@/services/users.service";
 import { useAuthStore } from "@/stores/auth.store";
 import { cn } from "@/lib/utils";
 
-interface RoleEntry {
-  roleId: string;
-  roleName: string;
-}
-
-function buildRoleMap(users: User[]): RoleEntry[] {
-  const seen = new Set<string>();
-  const map: RoleEntry[] = [];
-  for (const u of users) {
-    if (!seen.has(u.roleId)) {
-      seen.add(u.roleId);
-      map.push({ roleId: u.roleId, roleName: u.roleName });
-    }
-  }
-  return map.sort((a, b) => {
-    const order = ["OWNER", "ADMIN", "SALES", "VIEWER"];
-    return order.indexOf(a.roleName) - order.indexOf(b.roleName);
-  });
-}
+const ROLE_ORDER = ["OWNER", "ADMIN", "SALES", "VIEWER"];
 
 interface UsersTableProps {
   users: User[];
+  roles: RoleOption[];
   isLoading: boolean;
   isError: boolean;
   onUpdateUser: (id: string, data: UpdateUserInput) => void;
@@ -134,8 +118,23 @@ function getActiveToggleTooltip(
   return isActive ? "Desactivar usuario" : "Activar usuario";
 }
 
+function sortRolesByOrder(roles: RoleOption[]): RoleOption[] {
+  return [...roles].sort((a, b) => {
+    return ROLE_ORDER.indexOf(a.name) - ROLE_ORDER.indexOf(b.name);
+  });
+}
+
+function availableRoles(actorRole: string, roles: RoleOption[]): RoleOption[] {
+  const sorted = sortRolesByOrder(roles);
+  if (actorRole === "ADMIN") {
+    return sorted.filter((r) => r.name !== "OWNER");
+  }
+  return sorted;
+}
+
 export function UsersTable({
   users,
+  roles,
   isLoading,
   isError,
   onUpdateUser,
@@ -161,7 +160,7 @@ export function UsersTable({
     return <EmptyState />;
   }
 
-  const roleMap = buildRoleMap(users);
+  const roleOptions = availableRoles(actorRole, roles);
 
   return (
     <Table>
@@ -208,9 +207,9 @@ export function UsersTable({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {roleMap.map((r) => (
-                      <SelectItem key={r.roleId} value={r.roleId}>
-                        {ROLE_BADGE[r.roleName]?.label ?? r.roleName}
+                    {roleOptions.map((r) => (
+                      <SelectItem key={r.id} value={r.id}>
+                        {ROLE_BADGE[r.name]?.label ?? r.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

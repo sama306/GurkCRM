@@ -1,12 +1,23 @@
 import { apiClient } from "./api-client";
 import type { User, UpdateUserInput, UserFilters, PaginatedResult } from "@/types/user";
 
+export interface RoleOption {
+  id: string;
+  name: string;
+}
+
 export interface UserLookup {
   id: string;
   fullName: string;
 }
 
 export const usersService = {
+  getRoles() {
+    return apiClient
+      .get<RoleOption[]>("/users/roles")
+      .then((res) => res.data);
+  },
+
   getUsersForLookup() {
     return apiClient
       .get<UserLookup[]>("/users/lookup")

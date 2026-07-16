@@ -4,6 +4,14 @@ import type { AxiosError } from "axios";
 import { usersService } from "@/services/users.service";
 import type { UserFilters, UpdateUserInput } from "@/types/user";
 
+export function useRoles() {
+  return useQuery({
+    queryKey: ["roles"],
+    queryFn: () => usersService.getRoles(),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 function getErrorMessage(error: unknown): string {
   const axiosError = error as AxiosError<{ error: { message: string } }>;
   return (

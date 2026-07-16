@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { QueryProvider } from "@/components/providers/QueryProvider";
-import { useUsersList, useUpdateUser } from "@/features/users/hooks/useUsersManagement";
+import { useUsersList, useUpdateUser, useRoles } from "@/features/users/hooks/useUsersManagement";
 import { UsersTable } from "./UsersTable";
 import { Pagination } from "@/features/companies/components/Pagination";
 import { Input } from "@/components/ui/input";
@@ -50,6 +50,7 @@ function UsersPageContent() {
   };
 
   const { data, isLoading, isError } = useUsersList(filters);
+  const { data: roles } = useRoles();
   const updateMutation = useUpdateUser();
 
   const users = data?.data ?? [];
@@ -91,6 +92,7 @@ function UsersPageContent() {
 
       <UsersTable
         users={users}
+        roles={roles ?? []}
         isLoading={isLoading}
         isError={isError}
         onUpdateUser={handleUpdateUser}

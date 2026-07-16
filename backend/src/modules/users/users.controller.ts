@@ -24,6 +24,14 @@ export const usersController = {
     });
   },
 
+  async listRoles(_req: Request, res: Response) {
+    const roles = await usersService.listRoles();
+    res.status(200).json({
+      success: true,
+      data: roles,
+    });
+  },
+
   async lookup(req: Request, res: Response) {
     const organizationId = req.user!.organizationId;
     const users = await usersService.lookupUsers(organizationId);
