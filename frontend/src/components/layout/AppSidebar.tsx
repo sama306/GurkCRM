@@ -72,11 +72,11 @@ export function AppSidebar() {
         href={item.href}
         onClick={() => setMobileOpen(false)}
         className={cn(
-          "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+          "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ease-out",
           active
             ? "bg-primary/10 text-primary"
-            : "text-muted-foreground hover:bg-muted hover:text-foreground",
-          collapsed && "justify-center px-2",
+            : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+          collapsed && "justify-center px-2 gap-0",
         )}
         title={collapsed ? item.label : undefined}
       >
@@ -89,29 +89,29 @@ export function AppSidebar() {
   const sidebarContent = (
     <div className="flex h-full flex-col">
       {/* Logo area */}
-      <div className="flex h-14 items-center gap-2 border-b px-4">
+      <div className="flex h-14 items-center gap-2 border-b border-sidebar-border px-4">
         {!collapsed && (
-          <a href="/app/dashboard" className="text-lg font-bold tracking-tight">
+          <a href="/app/dashboard" className="text-lg font-bold tracking-tight text-sidebar-foreground">
             GurkCRM
           </a>
         )}
         {collapsed && (
-          <a href="/app/dashboard" className="mx-auto text-lg font-bold tracking-tight">
+          <a href="/app/dashboard" className="mx-auto text-lg font-bold tracking-tight text-sidebar-foreground">
             G
           </a>
         )}
       </div>
 
       {/* Main nav */}
-      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+      <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
         {mainNav.map((item) => (
           <NavItemLink key={item.href} item={item} />
         ))}
       </nav>
 
       {/* Bottom nav (admin + profile) */}
-      <div className="border-t p-3">
-        <div className="space-y-1">
+      <div className="border-t border-sidebar-border p-2">
+        <div className="space-y-0.5">
           {bottomNav.map((item) => {
             if (item.adminOnly && !canManageUsers(role)) return null;
             return <NavItemLink key={item.href} item={item} />;
@@ -124,7 +124,7 @@ export function AppSidebar() {
             variant="ghost"
             size="sm"
             onClick={() => setCollapsed(true)}
-            className="mt-3 w-full justify-center text-muted-foreground"
+            className="mt-2 w-full justify-center text-sidebar-foreground/50 hover:text-sidebar-foreground"
           >
             <ChevronLeft className="size-4" />
             <span className="ml-2 text-xs">Colapsar</span>
@@ -135,7 +135,7 @@ export function AppSidebar() {
             variant="ghost"
             size="icon"
             onClick={() => setCollapsed(false)}
-            className="mt-3 w-full text-muted-foreground"
+            className="mt-2 w-full text-sidebar-foreground/50 hover:text-sidebar-foreground"
             title="Expandir sidebar"
           >
             <ChevronRight className="size-4" />
@@ -150,7 +150,7 @@ export function AppSidebar() {
       {/* Mobile hamburger button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed left-4 top-3 z-50 flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted md:hidden"
+        className="fixed left-4 top-3 z-50 flex size-8 items-center justify-center rounded-lg text-foreground/50 hover:bg-muted md:hidden"
         aria-label="Abrir menú"
       >
         <Menu className="size-5" />
@@ -167,31 +167,31 @@ export function AppSidebar() {
       {/* Mobile drawer */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-background shadow-lg ring-1 ring-foreground/10 transition-transform duration-300 md:hidden",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-sidebar ring-1 ring-sidebar-border transition-transform duration-200 ease-out md:hidden",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex h-full flex-col">
-          <div className="flex h-14 items-center justify-between border-b px-4">
-            <a href="/app/dashboard" className="text-lg font-bold tracking-tight">
+          <div className="flex h-14 items-center justify-between border-b border-sidebar-border px-4">
+            <a href="/app/dashboard" className="text-lg font-bold tracking-tight text-sidebar-foreground">
               GurkCRM
             </a>
             <button
               onClick={() => setMobileOpen(false)}
-              className="flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
+              className="flex size-8 items-center justify-center rounded-lg text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-foreground"
               aria-label="Cerrar menú"
             >
               <X className="size-5" />
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto p-3">
-            <nav className="space-y-1">
+          <div className="flex-1 overflow-y-auto p-2">
+            <nav className="space-y-0.5">
               {mainNav.map((item) => (
                 <NavItemLink key={item.href} item={item} />
               ))}
             </nav>
-            <div className="mt-4 border-t pt-4">
-              <nav className="space-y-1">
+            <div className="mt-3 border-t border-sidebar-border pt-3">
+              <nav className="space-y-0.5">
                 {bottomNav.map((item) => {
                   if (item.adminOnly && !canManageUsers(role)) return null;
                   return <NavItemLink key={item.href} item={item} />;
@@ -205,7 +205,7 @@ export function AppSidebar() {
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-30 hidden flex-col bg-background ring-1 ring-foreground/10 transition-all duration-300 md:flex",
+          "fixed inset-y-0 left-0 z-30 hidden flex-col bg-sidebar ring-1 ring-sidebar-border transition-all duration-200 ease-out md:flex",
           collapsed ? "w-16" : "w-60",
         )}
       >

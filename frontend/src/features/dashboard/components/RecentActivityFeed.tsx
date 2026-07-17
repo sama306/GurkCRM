@@ -13,9 +13,9 @@ const TYPE_ICON = {
 } as const;
 
 const TYPE_COLOR = {
-  CUSTOMER: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
-  DEAL: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
-  TASK: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
+  CUSTOMER: "bg-info/10 text-info",
+  DEAL: "bg-warning/15 text-warning",
+  TASK: "bg-success/15 text-success",
 } as const;
 
 function formatRelativeTime(dateStr: string): string {
@@ -67,17 +67,17 @@ export function RecentActivityFeed({ data, isLoading }: RecentActivityFeedProps)
   }
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-0.5">
       {data.map((item) => {
         const Icon = TYPE_ICON[item.type];
         const colorClass = TYPE_COLOR[item.type];
         return (
-          <div key={item.id} className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50">
-            <div className={`flex size-9 shrink-0 items-center justify-center rounded-full ${colorClass}`}>
-              <Icon className="size-4" />
+          <div key={item.id} className="flex items-start gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 ease-out hover:bg-muted/50">
+            <div className={`flex size-8 shrink-0 items-center justify-center rounded-full ${colorClass}`}>
+              <Icon className="size-3.5" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">
+              <p className="truncate text-sm font-medium text-foreground">
                 {item.descriptionText}
               </p>
               <p className="text-xs text-muted-foreground">

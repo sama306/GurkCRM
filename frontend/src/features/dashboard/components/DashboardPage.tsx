@@ -66,23 +66,25 @@ function DashboardContent() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
+      </div>
 
       <SummaryCards data={summary} isLoading={summaryLoading} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle>Actividad Reciente</CardTitle>
+            <CardTitle className="text-sm font-semibold text-foreground">Actividad Reciente</CardTitle>
           </CardHeader>
           <CardContent>
             <RecentActivityFeed data={recentActivity} isLoading={activityLoading} />
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
-            <CardTitle>Mis Tareas Pendientes</CardTitle>
+            <CardTitle className="text-sm font-semibold text-foreground">Mis Tareas Pendientes</CardTitle>
           </CardHeader>
           <CardContent>
             {tasksLoading ? (
@@ -100,16 +102,16 @@ function DashboardContent() {
                 No tenés tareas pendientes. ¡Bien ahí!
               </p>
             ) : (
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {paginatedTasks.map((task) => {
                   const pb = PRIORITY_BADGE[task.priority] ?? { variant: "secondary" as const, label: task.priority };
                   return (
                     <div
                       key={task.id}
-                      className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition-colors hover:bg-muted/50"
+                      className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 transition-all duration-200 ease-out hover:bg-muted/50"
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{task.title}</p>
+                        <p className="truncate text-sm font-medium text-foreground">{task.title}</p>
                         <p className="text-xs text-muted-foreground">
                           Vence: {formatDate(task.dueDate)}
                         </p>
@@ -123,12 +125,14 @@ function DashboardContent() {
               </div>
             )}
             {totalPages > 1 && (
-              <Pagination
-                page={safePage}
-                totalPages={totalPages}
-                total={pendingTasks.length}
-                onPageChange={setTaskPage}
-              />
+              <div className="mt-3">
+                <Pagination
+                  page={safePage}
+                  totalPages={totalPages}
+                  total={pendingTasks.length}
+                  onPageChange={setTaskPage}
+                />
+              </div>
             )}
           </CardContent>
         </Card>

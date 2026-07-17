@@ -37,7 +37,7 @@ const CARD_DEFS = [
 
 function SkeletonCard() {
   return (
-    <Card>
+    <Card className="shadow-sm">
       <CardHeader className="flex-row items-center justify-between">
         <div className="h-4 w-24 animate-pulse rounded bg-muted" />
         <div className="size-8 animate-pulse rounded-lg bg-muted" />
@@ -66,7 +66,7 @@ export function SummaryCards({ data, isLoading }: SummaryCardsProps) {
         const Icon = def.icon;
         const value = data?.[def.key] ?? 0;
         return (
-          <Card key={def.key}>
+          <Card key={def.key} className="shadow-sm">
             <CardHeader className="flex-row items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 {def.label}
@@ -76,7 +76,7 @@ export function SummaryCards({ data, isLoading }: SummaryCardsProps) {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold tracking-tight">
+              <p className="text-2xl font-bold tracking-tight text-foreground">
                 {def.format(value)}
               </p>
             </CardContent>

@@ -22,13 +22,13 @@ import { Toaster } from "@/components/ui/sonner"
     <AppSidebar client:load />
 
     <!-- Top bar: solo usuario a la derecha; margin reactivo al sidebar -->
-    <header class="fixed right-0 top-0 z-20 flex h-14 items-center justify-end border-b bg-background px-4 transition-[left] duration-300 md:px-6" style="left: var(--sidebar-width, 15rem)">
+    <header class="fixed right-0 top-0 z-20 flex h-14 items-center justify-end border-b border-border/50 bg-background/80 px-4 backdrop-blur-sm transition-[left] duration-200 ease-out md:px-6" style="left: var(--sidebar-width, 15rem)">
       <UserMenu client:load />
     </header>
 
     <!-- Main content; margin reactivo al sidebar -->
     <AuthGuard client:load>
-      <main class="min-h-dvh pt-14 transition-[margin-left] duration-300" style="margin-left: var(--sidebar-width, 15rem)">
+      <main class="min-h-dvh pt-14 transition-[margin-left] duration-200 ease-out" style="margin-left: var(--sidebar-width, 15rem)">
         <div class="p-6">
           <slot />
         </div>
