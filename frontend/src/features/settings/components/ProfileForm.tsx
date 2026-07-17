@@ -135,7 +135,7 @@ export function ProfileForm() {
             </Button>
           </FieldGroup>
         </form>
-      </CardContent>
+        </CardContent>
     </Card>
   );
 }

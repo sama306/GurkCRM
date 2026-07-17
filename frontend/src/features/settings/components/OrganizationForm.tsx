@@ -193,7 +193,7 @@ export function OrganizationForm() {
             </Button>
           </FieldGroup>
         </form>
-      </CardContent>
+        </CardContent>
     </Card>
   );
 }

@@ -142,7 +142,7 @@ export function ChangePasswordForm() {
             </Button>
           </FieldGroup>
         </form>
-      </CardContent>
+        </CardContent>
     </Card>
   );
 }
