@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "preserve",
-    "moduleResolution": "bundler",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "lib": ["esnext"],
     "types": ["node"],
     "strict": true,
@@ -11,7 +11,8 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "sourceMap": true,
-    "noEmit": true
+    "outDir": "dist",
+    "rootDir": "."
   },
-  "include": ["src", "prisma"]
+  "include": ["src"]
 }
