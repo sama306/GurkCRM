@@ -1,0 +1,12 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro"
+import { SettingsProfilePage } from "@/features/settings/components/SettingsProfilePage"
+---
+
+<AppLayout>
+  <Fragment slot="head">
+    <title>Mi perfil — GurkCRM</title>
+  </Fragment>
+
+  <SettingsProfilePage client:load />
+</AppLayout>

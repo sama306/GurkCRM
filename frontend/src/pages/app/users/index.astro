@@ -1,0 +1,15 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro"
+import { UsersPage } from "@/features/users/components/UsersPage"
+import { RoleGuard } from "@/components/auth/RoleGuard"
+---
+
+<AppLayout>
+  <Fragment slot="head">
+    <title>Usuarios — GurkCRM</title>
+  </Fragment>
+
+  <RoleGuard allowedRoles={["ADMIN", "OWNER"]} client:load>
+    <UsersPage client:load />
+  </RoleGuard>
+</AppLayout>

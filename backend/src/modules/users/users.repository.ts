@@ -1,7 +1,7 @@
 import { prisma } from '../../config/prisma';
 
 export const usersRepository = {
-  findByOrganization(organizationId: string, filters?: {
+  async findByOrganization(organizationId: string, filters?: {
     page?: number;
     limit?: number;
     search?: string;
@@ -19,10 +19,14 @@ export const usersRepository = {
     }
 
     if (filters?.search) {
-      where.OR = [
-        { fullName: { contains: filters.search } },
-        { email: { contains: filters.search } },
-      ];
+      const searchTerm = `%${filters.search}%`;
+      const matching = await prisma.$queryRaw<Array<{ id: string }>>`
+        SELECT [id] FROM [User]
+        WHERE [organizationId] = ${organizationId}
+        AND ([fullName] COLLATE Modern_Spanish_CI_AI LIKE ${searchTerm}
+             OR [email] COLLATE Modern_Spanish_CI_AI LIKE ${searchTerm})
+      `;
+      where.id = { in: matching.map((r) => r.id) };
     }
 
     if (filters?.roleName) {
@@ -65,6 +69,14 @@ export const usersRepository = {
 
   findRoleByName(name: string) {
     return prisma.role.findFirst({ where: { name } });
+  },
+
+  findRoleById(id: string) {
+    return prisma.role.findUnique({ where: { id } });
+  },
+
+  findAllRoles() {
+    return prisma.role.findMany({ orderBy: { name: 'asc' } });
   },
 
   countOwnerUsers(organizationId: string) {

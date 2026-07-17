@@ -10,6 +10,7 @@ import { customersRoutes } from './modules/customers/customers.routes';
 import { dealsRoutes } from './modules/deals/deals.routes';
 import { tasksRoutes } from './modules/tasks/tasks.routes';
 import { dashboardRoutes } from './modules/dashboard/dashboard.routes';
+import { settingsRoutes } from './modules/settings/settings.routes';
 import { errorHandler } from './middlewares/error.middleware';
 import { prisma } from './config/prisma';
 
@@ -30,6 +31,7 @@ app.use('/api/v1/customers', customersRoutes);
 app.use('/api/v1/deals', dealsRoutes);
 app.use('/api/v1/tasks', tasksRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
+app.use('/api/v1/settings', settingsRoutes);
 
 app.get('/api/v1/health', (req, res) => {
   res.json({ success: true, data: { status: 'ok' } });

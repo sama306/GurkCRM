@@ -1,0 +1,12 @@
+---
+import AppLayout from "@/layouts/AppLayout.astro"
+import { SettingsOrganizationPage } from "@/features/settings/components/SettingsOrganizationPage"
+---
+
+<AppLayout>
+  <Fragment slot="head">
+    <title>Configuración de organización — GurkCRM</title>
+  </Fragment>
+
+  <SettingsOrganizationPage client:load />
+</AppLayout>

@@ -4,6 +4,6 @@ import { usersService } from "@/services/users.service";
 export function useUsers() {
   return useQuery({
     queryKey: ["users-lookup"],
-    queryFn: () => usersService.getUsers(),
+    queryFn: () => usersService.getUsersForLookup(),
   });
 }
