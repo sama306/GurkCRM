@@ -1,10 +1,10 @@
 ---
-// Layout para páginas protegidas (/app/*). Provee QueryClientProvider + auth init.
+// Layout para páginas protegidas (/app/*). Sidebar lateral + top bar minimal.
 import "../styles/global.css"
 import { AppProvider } from "@/components/providers/AppProvider"
 import { AuthGuard } from "@/components/auth/AuthGuard"
+import { AppSidebar } from "@/components/layout/AppSidebar"
 import { UserMenu } from "@/components/layout/UserMenu"
-import { AppNavLinks } from "@/components/layout/AppNavLinks"
 import { Toaster } from "@/components/ui/sonner"
 ---
 
@@ -16,40 +16,22 @@ import { Toaster } from "@/components/ui/sonner"
     <slot name="head" />
   </head>
   <body>
-    <!--
-      AppProvider solo inicia la verificación de sesión (refresh token).
-      NO provee QueryClientProvider porque cada isla client:load de Astro
-      es un root React independiente — el provider no llegaría al <slot />.
-
-      Cada página isla que use TanStack Query debe incluir QueryProvider
-      como raíz: <QueryProvider><Pagina /></QueryProvider>
-
-      Ver src/components/providers/QueryProvider.tsx para la documentación
-      completa de esta decisión arquitectónica.
-    -->
     <AppProvider client:load />
 
-    <header class="flex h-14 items-center justify-between border-b px-6">
-      <div class="flex items-center gap-6">
-        <a href="/app/dashboard" class="text-lg font-bold tracking-tight">
-          GurkCRM
-        </a>
-        <nav class="hidden items-center gap-4 md:flex">
-          <a
-            href="/app/dashboard"
-            class="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Dashboard
-          </a>
-          <AppNavLinks client:load />
-        </nav>
-      </div>
+    <!-- Sidebar (mobile + desktop) -->
+    <AppSidebar client:load />
+
+    <!-- Top bar: solo usuario a la derecha; margin reactivo al sidebar -->
+    <header class="fixed right-0 top-0 z-20 flex h-14 items-center justify-end border-b bg-background px-4 transition-[left] duration-300 md:px-6" style="left: var(--sidebar-width, 15rem)">
       <UserMenu client:load />
     </header>
 
+    <!-- Main content; margin reactivo al sidebar -->
     <AuthGuard client:load>
-      <main class="p-6">
-        <slot />
+      <main class="min-h-dvh pt-14 transition-[margin-left] duration-300" style="margin-left: var(--sidebar-width, 15rem)">
+        <div class="p-6">
+          <slot />
+        </div>
       </main>
     </AuthGuard>
 
