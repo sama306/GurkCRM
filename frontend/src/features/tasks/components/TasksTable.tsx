@@ -40,8 +40,8 @@ interface TasksTableProps {
 }
 
 const PRIORITY_BADGE: Record<string, { variant: "default" | "secondary" | "outline" | "destructive"; label: string }> = {
-  LOW: { variant: "secondary", label: "Baja" },
-  MEDIUM: { variant: "outline", label: "Media" },
+  LOW: { variant: "outline", label: "Baja" },
+  MEDIUM: { variant: "secondary", label: "Media" },
   HIGH: { variant: "destructive", label: "Alta" },
 };
 

@@ -63,7 +63,7 @@ export function ContactsList({
   return (
     <div className="space-y-3">
       {contacts.map((contact) => (
-        <Card key={contact.id}>
+        <Card key={contact.id} className="shadow-sm">
           <CardContent className="flex items-center justify-between gap-4 p-4">
             <div className="min-w-0 space-y-1.5">
               <p className="truncate font-medium">{contact.fullName}</p>

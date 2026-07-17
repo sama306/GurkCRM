@@ -47,8 +47,8 @@ export function DealCard({ deal }: DealCardProps) {
       {...attributes}
       {...listeners}
       className={cn(
-        "cursor-grab touch-none rounded-lg border bg-card p-3 text-sm shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing",
-        isDragging && "z-10 opacity-50 shadow-lg ring-2 ring-primary/30",
+        "cursor-grab touch-none rounded-lg border bg-card p-3 text-sm shadow-sm transition-all duration-200 ease-out hover:shadow-md active:cursor-grabbing",
+        isDragging && "z-10 opacity-60 shadow-xl ring-2 ring-primary/30",
       )}
     >
       <div className="mb-2 font-medium leading-snug text-foreground">
