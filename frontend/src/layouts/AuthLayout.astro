@@ -11,10 +11,13 @@ import "../styles/global.css"
     <title>GurkCRM — <slot name="title" /></title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
-  <body class="flex min-h-dvh items-center justify-center bg-muted/30 p-4">
+  <body class="relative flex min-h-dvh items-center justify-center overflow-hidden bg-muted/15 p-4">
+    <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
+      <div class="absolute left-1/2 top-0 h-[40rem] w-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-b from-primary/10 to-transparent blur-3xl" />
+    </div>
     <div class="flex w-full max-w-sm flex-col items-center gap-6">
-      <a href="/" class="flex items-center gap-2 font-semibold text-lg tracking-tight">
-        <span class="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">G</span>
+      <a href="/" class="flex items-center gap-2.5 font-semibold text-lg tracking-tight text-foreground">
+        <span class="flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground text-base font-bold">G</span>
         GurkCRM
       </a>
       <slot />

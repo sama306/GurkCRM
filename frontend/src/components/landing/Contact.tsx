@@ -57,7 +57,7 @@ export default function Contact() {
         </div>
 
         <div className="mx-auto mt-12 max-w-lg">
-          <Card>
+          <Card className="shadow-md">
             <CardHeader>
               <CardTitle>Envíanos un mensaje</CardTitle>
               <CardDescription>

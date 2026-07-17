@@ -74,7 +74,7 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" as const },
+    transition: { duration: 0.5, ease: [0, 0, 0.2, 1] as const },
   },
 }
 
@@ -104,7 +104,7 @@ export default function Features() {
             const Icon = feature.icon
             return (
               <motion.div key={`${id}-${feature.title}`} variants={itemVariants}>
-                <Card className="h-full">
+                <Card className="h-full shadow-sm">
                   <CardContent className="flex flex-col gap-4 pt-6">
                     <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10">
                       <Icon className="size-5 text-primary" />

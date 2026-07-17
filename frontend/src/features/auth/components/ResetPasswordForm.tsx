@@ -73,7 +73,7 @@ export default function ResetPasswordForm() {
 
   if (loading) {
     return (
-      <Card className="w-full">
+      <Card className="w-full shadow-md">
         <CardContent className="flex items-center justify-center py-12">
           <Loader2 className="size-6 animate-spin text-muted-foreground" />
         </CardContent>
@@ -83,7 +83,7 @@ export default function ResetPasswordForm() {
 
   if (!token) {
     return (
-      <Card className="w-full">
+      <Card className="w-full shadow-md">
         <CardHeader>
           <CardTitle>Link inválido</CardTitle>
           <CardDescription>
@@ -105,7 +105,7 @@ export default function ResetPasswordForm() {
 
   if (success) {
     return (
-      <Card className="w-full">
+      <Card className="w-full shadow-md">
         <CardHeader>
           <CardTitle>Contraseña actualizada</CardTitle>
           <CardDescription>
@@ -114,8 +114,8 @@ export default function ResetPasswordForm() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center gap-4">
-            <div className="flex size-12 items-center justify-center rounded-full bg-emerald-500/10">
-              <CheckCircle2 className="size-6 text-emerald-500" />
+            <div className="flex size-12 items-center justify-center rounded-full bg-success/10">
+              <CheckCircle2 className="size-6 text-success" />
             </div>
             <p className="text-center text-sm text-muted-foreground">
               Ya podés iniciar sesión con tu nueva contraseña.
@@ -133,7 +133,7 @@ export default function ResetPasswordForm() {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full shadow-md">
       <CardHeader>
         <CardTitle>Restablecer contraseña</CardTitle>
         <CardDescription>
