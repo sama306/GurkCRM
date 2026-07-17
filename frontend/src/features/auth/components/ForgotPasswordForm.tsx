@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Mail, ArrowLeft } from "lucide-react";
+import { Mail, ArrowLeft, Info } from "lucide-react";
 
 import { forgotPasswordSchema } from "@/features/auth/schemas/auth.schema";
 import { authService } from "@/services/auth.service";
@@ -49,7 +49,7 @@ export default function ForgotPasswordForm() {
 
   if (sent) {
     return (
-      <Card className="w-full">
+      <Card className="w-full shadow-md">
         <CardHeader>
           <CardTitle>Revisá tu email</CardTitle>
           <CardDescription>
@@ -67,9 +67,9 @@ export default function ForgotPasswordForm() {
               tu carpeta de spam.
             </p>
             {import.meta.env.DEV && (
-              <p className="rounded-lg border border-yellow-200 bg-yellow-50 px-3 py-2 text-xs text-yellow-800 dark:border-yellow-800/30 dark:bg-yellow-900/20 dark:text-yellow-300">
-                Modo desarrollo: revisá la consola del backend para ver el link
-                de reseteo.
+              <p className="flex items-start gap-2 rounded-lg border border-warning/20 bg-warning/10 px-3 py-2 text-xs text-warning">
+                <Info className="mt-0.5 size-3.5 shrink-0" />
+                <span>Modo desarrollo: revisá la consola del backend para ver el link de reseteo.</span>
               </p>
             )}
             <a
@@ -86,7 +86,7 @@ export default function ForgotPasswordForm() {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full shadow-md">
       <CardHeader>
         <CardTitle>Recuperar contraseña</CardTitle>
         <CardDescription>

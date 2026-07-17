@@ -37,9 +37,9 @@ export function DealColumn({ stage, deals }: DealColumnProps) {
   return (
     <div
       className={cn(
-        "flex w-[280px] shrink-0 flex-col rounded-xl border-t-4 bg-muted/30 pt-3",
+        "flex w-[280px] shrink-0 flex-col rounded-xl border-t-4 bg-muted/50 pt-3",
         STAGE_COLORS[stage],
-        isOver && "bg-muted/60 ring-2 ring-primary/20",
+        isOver && "bg-muted/70 ring-2 ring-primary/20",
       )}
     >
       <div className="mb-3 flex items-center justify-between px-3">

@@ -69,7 +69,7 @@ export default function LoginForm() {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full shadow-md">
       <CardHeader>
         <CardTitle>Iniciar sesión</CardTitle>
         <CardDescription>

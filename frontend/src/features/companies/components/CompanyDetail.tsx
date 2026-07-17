@@ -124,7 +124,7 @@ function CompanyDetailContent({ id }: { id: string }) {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle>Información general</CardTitle>
           </CardHeader>
@@ -161,7 +161,7 @@ function CompanyDetailContent({ id }: { id: string }) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm">
           <CardHeader>
             <CardTitle>Detalles</CardTitle>
           </CardHeader>

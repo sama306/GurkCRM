@@ -69,7 +69,7 @@ export default function RegisterForm() {
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full shadow-md">
       <CardHeader>
         <CardTitle>Crear cuenta</CardTitle>
         <CardDescription>

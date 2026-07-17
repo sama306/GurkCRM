@@ -82,7 +82,7 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: "easeOut" as const },
+    transition: { duration: 0.5, ease: [0, 0, 0.2, 1] as const },
   },
 }
 
@@ -112,9 +112,9 @@ export default function Pricing() {
             <motion.div key={`${id}-${plan.name}`} variants={itemVariants}>
               <Card
                 className={cn(
-                  "relative flex h-full flex-col",
+                  "relative flex h-full flex-col shadow-sm",
                   plan.highlighted &&
-                    "ring-2 ring-primary shadow-lg",
+                    "shadow-lg ring-2 ring-primary",
                 )}
               >
                 {plan.highlighted && (
