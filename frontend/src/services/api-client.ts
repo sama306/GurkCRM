@@ -2,7 +2,7 @@ import axios, { AxiosError } from "axios";
 import type { InternalAxiosRequestConfig } from "axios";
 import type { RefreshResponse } from "@/types/auth";
 
-const API_URL = import.meta.env.PUBLIC_API_URL || "http://localhost:4000/api/v1";
+const API_URL = import.meta.env.PUBLIC_API_URL || "https://gurkcrm-api.onrender.com/api/v1";
 
 export const apiClient = axios.create({
   baseURL: API_URL,
