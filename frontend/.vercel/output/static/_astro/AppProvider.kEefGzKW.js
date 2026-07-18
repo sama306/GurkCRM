@@ -1,1 +1,0 @@
-import{o as e,t}from"./react.Ca03aNmg.js";import{t as n}from"./auth.store.DdWYY5tR.js";import{t as r}from"./jsx-runtime.BkI2TOtY.js";var i=e(t(),1),a=r();function o({children:e}){let t=n(e=>e.initializeAuth);return(0,i.useEffect)(()=>{t()},[t]),(0,a.jsx)(a.Fragment,{children:e})}export{o as AppProvider};
