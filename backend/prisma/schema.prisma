@@ -35,11 +35,12 @@ model Organization {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  users     User[]
-  companies Company[]
-  customers Customer[]
-  deals     Deal[]
-  tasks     Task[]
+  users       User[]
+  companies   Company[]
+  customers   Customer[]
+  deals       Deal[]
+  tasks       Task[]
+  invitations Invitation[]
 
   @@map("Organization")
 }
@@ -55,7 +56,8 @@ model Role {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  users User[]
+  users       User[]
+  invitations Invitation[] // invitations with this proposed role
 
   @@map("Role")
 }
@@ -86,6 +88,7 @@ model User {
   refreshTokens  RefreshToken[]
   notifications  Notification[]
   activities     Activity[]
+  sentInvitations Invitation[] // invitations created by this user
 
   @@map("User")
 }
@@ -104,6 +107,33 @@ model RefreshToken {
   user User @relation(fields: [userId], references: [id])
 
   @@map("RefreshToken")
+}
+
+// ── Invitation ─────────────────────────────────────────────────────────────
+// status values:  PENDING | ACCEPTED | EXPIRED | REVOKED
+// tokenHash: token de aceptación, se guarda hasheado (mismo criterio que RefreshToken)
+
+model Invitation {
+  id             String    @id @default(cuid())
+  organizationId String
+  email          String
+  roleId         String
+  invitedById    String
+  tokenHash      String
+  status         String    @default("PENDING") // PENDING | ACCEPTED | EXPIRED | REVOKED
+  expiresAt      DateTime
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  acceptedAt     DateTime?
+  revokedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  role         Role         @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  invitedBy    User         @relation(fields: [invitedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([organizationId, status])
+  @@index([email, organizationId])
+  @@map("Invitation")
 }
 
 // ── Company ────────────────────────────────────────────────────────────────

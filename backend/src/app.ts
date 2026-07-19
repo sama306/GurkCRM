@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import { env } from './config/env';
 import { authRoutes } from './modules/auth/auth.routes';
 import { usersRoutes } from './modules/users/users.routes';
+import { invitationsRoutes } from './modules/invitations/invitations.routes';
 import { companiesRoutes } from './modules/companies/companies.routes';
 import { contactsRoutes } from './modules/contacts/contacts.routes';
 import { customersRoutes } from './modules/customers/customers.routes';
@@ -25,6 +26,7 @@ app.use(cookieParser());
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', usersRoutes);
+app.use('/api/v1/invitations', invitationsRoutes);
 app.use('/api/v1/companies', companiesRoutes);
 app.use('/api/v1', contactsRoutes);
 app.use('/api/v1/customers', customersRoutes);

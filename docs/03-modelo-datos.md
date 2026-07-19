@@ -29,7 +29,10 @@ Organization (tenant del SaaS)
    │                 ├── File
    │                 └── Activity
    │
-   └── Role (Owner/Admin/Sales/Viewer)
+   ├── Role (Owner/Admin/Sales/Viewer)
+   │
+   └── Invitation
+         └── email → se crea User al aceptar
 ```
 
 ## Diccionario de entidades
@@ -184,6 +187,21 @@ Relación 1:N con `RefreshToken` (una sesión/dispositivo por token).
 | linkUrl | string? | deep link al recurso |
 | createdAt | DateTime | |
 
+### Invitation *(invitación por email para unirse a una organización)*
+| Campo | Tipo | Notas |
+|---|---|---|
+| id | UUID | PK |
+| organizationId | UUID | FK → Organization |
+| email | string | email del invitado (no necesita ser un User existente) |
+| roleId | UUID | FK → Role, rol que se le asignará al aceptar |
+| invitedById | UUID | FK → User, quien creó la invitación |
+| tokenHash | string | token de aceptación, se guarda hasheado (mismo criterio que RefreshToken) |
+| status | enum | `PENDING`, `ACCEPTED`, `EXPIRED`, `REVOKED` |
+| expiresAt | DateTime | 7 días desde creación |
+| createdAt | DateTime | |
+| acceptedAt | DateTime? | null hasta que se acepte |
+| updatedAt | DateTime | |
+
 ### Activity *(log de auditoría / historial de actividad)*
 | Campo | Tipo | Notas |
 |---|---|---|
@@ -208,6 +226,9 @@ Relación 1:N con `RefreshToken` (una sesión/dispositivo por token).
 - `Customer 1—N Comment`, `Customer 1—N File`
 - `User 1—N Notification`
 - `User 1—N Activity`
+- `Organization 1—N Invitation`
+- `Role 1—N Invitation` (rol propuesto)
+- `User 1—N Invitation` (como invitedBy)
 
 ## Índices recomendados
 
@@ -217,6 +238,8 @@ Relación 1:N con `RefreshToken` (una sesión/dispositivo por token).
 - `Comment.entityType` + `Comment.entityId`
 - `File.entityType` + `File.entityId`
 - `Notification.userId` + `Notification.isRead`
+- `Invitation.organizationId` + `Invitation.status` — para listar invitaciones activas
+- `Invitation.email` + `Invitation.organizationId` — para detectar duplicados PENDING
 
 ## Datos ficticios (seed) — a definir en el prompt de base de datos
 
