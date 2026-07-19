@@ -8,9 +8,8 @@ const REFRESH_TOKEN_NAME = 'refreshToken';
 function setRefreshCookie(res: Response, token: string, expiresAt: Date) {
   res.cookie(REFRESH_TOKEN_NAME, token, {
     httpOnly: true,
-    secure: env.COOKIE_SECURE,
-    sameSite: 'strict',
-    domain: env.COOKIE_DOMAIN,
+    secure: true,
+    sameSite: 'none',
     path: '/api/v1/auth',
     expires: expiresAt,
   });
@@ -19,9 +18,8 @@ function setRefreshCookie(res: Response, token: string, expiresAt: Date) {
 function clearRefreshCookie(res: Response) {
   res.clearCookie(REFRESH_TOKEN_NAME, {
     httpOnly: true,
-    secure: env.COOKIE_SECURE,
-    sameSite: 'strict',
-    domain: env.COOKIE_DOMAIN,
+    secure: true,
+    sameSite: 'none',
     path: '/api/v1/auth',
   });
 }
