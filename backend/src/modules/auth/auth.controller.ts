@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { authService } from './auth.service';
 import { env } from '../../config/env';
-import type { RegisterInput, LoginInput, ForgotPasswordInput, ResetPasswordInput } from './auth.schema';
+import type { RegisterInput, LoginInput, ForgotPasswordInput, ResetPasswordInput, AcceptInvitationInput } from './auth.schema';
 
 const REFRESH_TOKEN_NAME = 'refreshToken';
 
@@ -29,6 +29,22 @@ export const authController = {
     const input = req.body as RegisterInput;
 
     const result = await authService.register(input);
+
+    setRefreshCookie(res, result.refreshToken, result.refreshExpiresAt);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        user: result.user,
+        accessToken: result.accessToken,
+      },
+    });
+  },
+
+  async acceptInvitation(req: Request, res: Response) {
+    const input = req.body as AcceptInvitationInput;
+
+    const result = await authService.acceptInvitation(input);
 
     setRefreshCookie(res, result.refreshToken, result.refreshExpiresAt);
 

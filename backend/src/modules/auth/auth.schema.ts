@@ -41,7 +41,20 @@ export const resetPasswordSchema = z.object({
     .max(128),
 });
 
+export const acceptInvitationSchema = z.object({
+  token: z.string().min(1, 'El token es requerido'),
+  fullName: z
+    .string()
+    .min(2, 'El nombre completo debe tener al menos 2 caracteres')
+    .max(100),
+  password: z
+    .string()
+    .min(8, 'La contraseña debe tener al menos 8 caracteres')
+    .max(128),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type AcceptInvitationInput = z.infer<typeof acceptInvitationSchema>;

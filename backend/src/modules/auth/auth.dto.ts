@@ -31,3 +31,8 @@ export interface RefreshResponseDTO {
 }
 
 export interface MeResponseDTO extends UserResponseDTO {}
+
+export interface AcceptInvitationResponseDTO {
+  user: UserResponseDTO;
+  accessToken: string;
+}

@@ -3,6 +3,41 @@ import { invitationsService } from './invitations.service';
 import type { CreateInvitationInput } from './invitations.dto';
 
 export const invitationsController = {
+  async verify(req: Request, res: Response) {
+    const token = req.query.token as string;
+
+    if (!token) {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'El parámetro token es requerido',
+          details: [],
+        },
+      });
+      return;
+    }
+
+    const result = await invitationsService.verifyInvitationToken(token);
+
+    if (!result.valid) {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_INVITATION',
+          message: result.reason,
+          details: [],
+        },
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  },
+
   async create(req: Request, res: Response) {
     const actorId = req.user!.id;
     const actorRole = req.user!.role;

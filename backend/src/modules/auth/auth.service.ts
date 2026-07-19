@@ -1,9 +1,11 @@
+import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env';
 import { AppError } from '../../shared/errors/AppError';
 import { authRepository } from './auth.repository';
-import type { RegisterInput, LoginInput, ResetPasswordInput } from './auth.schema';
+import { invitationsRepository } from '../invitations/invitations.repository';
+import type { RegisterInput, LoginInput, ResetPasswordInput, AcceptInvitationInput } from './auth.schema';
 
 function toUserResponse(user: {
   id: string;
@@ -82,6 +84,74 @@ export const authService = {
       fullName: input.fullName,
       email: input.email,
       passwordHash,
+    });
+
+    const accessToken = signAccessToken({
+      id: user.id,
+      organizationId: user.organizationId,
+      role: user.role.name,
+    });
+
+    const refreshToken = signRefreshToken({ id: user.id });
+    const expiresAt = getRefreshExpiry(false);
+    const refreshTokenHash = await bcrypt.hash(refreshToken, saltRounds);
+    await authRepository.createRefreshToken({
+      userId: user.id,
+      tokenHash: refreshTokenHash,
+      expiresAt,
+    });
+
+    return {
+      user: toUserResponse(user),
+      accessToken,
+      refreshToken,
+      refreshExpiresAt: expiresAt,
+    };
+  },
+
+  async acceptInvitation(input: AcceptInvitationInput) {
+    const tokenHash = crypto.createHash('sha256').update(input.token).digest('hex');
+
+    const invitation = await invitationsRepository.findByTokenHash(tokenHash);
+    if (!invitation) {
+      throw new AppError(400, 'INVALID_INVITATION', 'Token de invitación inválido.');
+    }
+
+    if (invitation.status !== 'PENDING') {
+      if (invitation.status === 'ACCEPTED') {
+        throw new AppError(400, 'INVITATION_ALREADY_ACCEPTED', 'Esta invitación ya fue aceptada.');
+      }
+      if (invitation.status === 'REVOKED') {
+        throw new AppError(400, 'INVITATION_REVOKED', 'Esta invitación fue revocada.');
+      }
+      if (invitation.status === 'EXPIRED') {
+        throw new AppError(400, 'INVITATION_EXPIRED', 'Esta invitación expiró.');
+      }
+      throw new AppError(400, 'INVALID_INVITATION', 'Token de invitación inválido.');
+    }
+
+    if (invitation.expiresAt < new Date()) {
+      await invitationsRepository.updateStatus(invitation.id, 'EXPIRED').catch(() => {});
+      throw new AppError(400, 'INVITATION_EXPIRED', 'Esta invitación expiró.');
+    }
+
+    // Verificar que el email no esté ya registrado en ninguna organización
+    const existingUser = await authRepository.findUserByEmail(invitation.email);
+    if (existingUser) {
+      throw new AppError(400, 'EMAIL_ALREADY_REGISTERED', 'Ese email ya está registrado.');
+    }
+
+    const saltRounds = env.BCRYPT_SALT_ROUNDS;
+    const passwordHash = await bcrypt.hash(input.password, saltRounds);
+
+    // Transacción: crear User + marcar Invitation como ACCEPTED
+    const user = await authRepository.createUserInTransaction({
+      organizationId: invitation.organizationId,
+      roleId: invitation.roleId,
+      fullName: input.fullName,
+      email: invitation.email,
+      passwordHash,
+      invitationId: invitation.id,
     });
 
     const accessToken = signAccessToken({

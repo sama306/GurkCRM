@@ -132,6 +132,36 @@ export const authRepository = {
     });
   },
 
+  async createUserInTransaction(data: {
+    organizationId: string;
+    roleId: string;
+    fullName: string;
+    email: string;
+    passwordHash: string;
+    invitationId: string;
+  }) {
+    return prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          organizationId: data.organizationId,
+          roleId: data.roleId,
+          fullName: data.fullName,
+          email: data.email,
+          passwordHash: data.passwordHash,
+          isActive: true,
+        },
+        include: { role: true },
+      });
+
+      await tx.invitation.update({
+        where: { id: data.invitationId },
+        data: { status: 'ACCEPTED', acceptedAt: new Date() },
+      });
+
+      return user;
+    });
+  },
+
   updatePassword(userId: string, passwordHash: string) {
     return prisma.user.update({
       where: { id: userId },

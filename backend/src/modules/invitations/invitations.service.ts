@@ -40,6 +40,44 @@ function toInvitationResponse(invitation: {
 const INVITATION_EXPIRY_DAYS = 7;
 
 export const invitationsService = {
+  async verifyInvitationToken(rawToken: string): Promise<{
+    valid: true;
+    email: string;
+    organizationName: string;
+    roleName: string;
+  } | { valid: false; reason: string }> {
+    const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+    const invitation = await invitationsRepository.findByTokenHash(tokenHash);
+
+    if (!invitation) {
+      return { valid: false, reason: 'Token de invitación inválido.' };
+    }
+
+    if (invitation.status === 'ACCEPTED') {
+      return { valid: false, reason: 'Esta invitación ya fue aceptada.' };
+    }
+
+    if (invitation.status === 'REVOKED') {
+      return { valid: false, reason: 'Esta invitación fue revocada.' };
+    }
+
+    if (invitation.expiresAt < new Date()) {
+      await invitationsRepository.updateStatus(invitation.id, 'EXPIRED').catch(() => {});
+      return { valid: false, reason: 'Esta invitación expiró.' };
+    }
+
+    if (invitation.status !== 'PENDING') {
+      return { valid: false, reason: 'Token de invitación inválido.' };
+    }
+
+    return {
+      valid: true,
+      email: invitation.email,
+      organizationName: invitation.organization.name,
+      roleName: invitation.role.name,
+    };
+  },
+
   async createInvitation(
     actorId: string,
     actorRole: string,

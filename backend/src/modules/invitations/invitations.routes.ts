@@ -7,6 +7,7 @@ import { createInvitationSchema } from './invitations.schema';
 
 const router = Router();
 
+router.get('/verify', invitationsController.verify);
 router.post('/', requireAuth, requireRole(['ADMIN', 'OWNER']), validate(createInvitationSchema), invitationsController.create);
 router.get('/', requireAuth, requireRole(['ADMIN', 'OWNER']), invitationsController.list);
 router.delete('/:id', requireAuth, requireRole(['ADMIN', 'OWNER']), invitationsController.revoke);

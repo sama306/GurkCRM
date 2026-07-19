@@ -7,11 +7,13 @@ import {
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  acceptInvitationSchema,
 } from './auth.schema';
 
 const router = Router();
 
 router.post('/register', validate(registerSchema), authController.register);
+router.post('/accept-invitation', validate(acceptInvitationSchema), authController.acceptInvitation);
 router.post('/login', validate(loginSchema), authController.login);
 router.post('/refresh', authController.refresh);
 router.post('/logout', authController.logout);
