@@ -9,6 +9,7 @@ frontend/.vercel/
 
 # environment
 .env
+backend/.env
 .env.production
 
 # logs
