@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -6,8 +7,11 @@ import {
 } from "@dnd-kit/core";
 import { useQueryClient } from "@tanstack/react-query";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { Button } from "@/components/ui/button";
 import { useDealsBoard, useChangeDealStage } from "@/features/deals/hooks/useDeals";
+import { usePermissions } from "@/utils/permissions";
 import { DealColumn } from "./DealColumn";
+import { DealFormDialog } from "./DealFormDialog";
 import type { Deal, DealBoard, DealStage } from "@/types/deal";
 
 const STAGES: DealStage[] = [
@@ -29,9 +33,11 @@ export function KanbanBoard() {
 }
 
 function KanbanBoardInner() {
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { data: board, isLoading, isError } = useDealsBoard();
   const changeStageMutation = useChangeDealStage();
   const queryClient = useQueryClient();
+  const { canCreate } = usePermissions();
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -106,19 +112,35 @@ function KanbanBoardInner() {
   }
 
   return (
-    <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 overflow-x-auto pb-4">
-        {STAGES.map((stage) => (
-          <DealColumn
-            key={stage}
-            stage={stage}
-            deals={board[stage] ?? []}
-          />
-        ))}
+    <>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Tablero de negocios</h2>
+        {canCreate && (
+          <Button onClick={() => setDialogOpen(true)}>
+            Nueva oportunidad
+          </Button>
+        )}
       </div>
-      <DragOverlay>
-        {null}
-      </DragOverlay>
-    </DndContext>
+
+      <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
+        <div className="flex gap-4 overflow-x-auto pb-4">
+          {STAGES.map((stage) => (
+            <DealColumn
+              key={stage}
+              stage={stage}
+              deals={board[stage] ?? []}
+            />
+          ))}
+        </div>
+        <DragOverlay>
+          {null}
+        </DragOverlay>
+      </DndContext>
+
+      <DealFormDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+      />
+    </>
   );
 }

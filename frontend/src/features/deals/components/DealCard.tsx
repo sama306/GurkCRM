@@ -1,6 +1,18 @@
+import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { MoreHorizontalIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { usePermissions } from "@/utils/permissions";
+import { useDeleteDeal } from "@/features/deals/hooks/useDeals";
+import { DealFormDialog } from "@/features/deals/components/DealFormDialog";
 import type { Deal } from "@/types/deal";
 
 interface DealCardProps {
@@ -22,6 +34,57 @@ function OwnerAvatar({ name }: { name: string }) {
     <span className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
       {initial}
     </span>
+  );
+}
+
+function DealCardActions({ deal }: { deal: Deal }) {
+  const [editOpen, setEditOpen] = useState(false);
+  const { canEdit, canDelete } = usePermissions();
+  const deleteMutation = useDeleteDeal();
+
+  function handleDelete() {
+    if (window.confirm(`¿Eliminar el negocio "${deal.title}"?`)) {
+      deleteMutation.mutate(deal.id);
+    }
+  }
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className="size-6 rounded-md text-muted-foreground hover:text-foreground"
+          >
+            <MoreHorizontalIcon className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="min-w-32">
+          {canEdit && (
+            <DropdownMenuItem onClick={() => setEditOpen(true)}>
+              Editar
+            </DropdownMenuItem>
+          )}
+          {canDelete && (
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={handleDelete}
+            >
+              Eliminar
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {editOpen && (
+        <DealFormDialog
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          deal={deal}
+        />
+      )}
+    </>
   );
 }
 
@@ -51,8 +114,17 @@ export function DealCard({ deal }: DealCardProps) {
         isDragging && "z-10 opacity-60 shadow-xl ring-2 ring-primary/30",
       )}
     >
-      <div className="mb-2 font-medium leading-snug text-foreground">
-        {deal.title}
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <span className="font-medium leading-snug text-foreground">
+          {deal.title}
+        </span>
+        <div
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="shrink-0"
+        >
+          <DealCardActions deal={deal} />
+        </div>
       </div>
       <div className="mb-2 text-sm font-semibold text-primary">
         {formatCurrency(deal.estimatedValue, deal.currency)}
