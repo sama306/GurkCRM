@@ -28,7 +28,10 @@ Cada rol tiene permisos distintos — probá loguearte con más de uno para ver 
 - **Pipeline visual (Kanban)**: drag & drop de oportunidades entre etapas, con actualización optimista y reordenamiento verificado bajo concurrencia real.
 - **Dashboard con métricas en vivo**: resumen de clientes activos, oportunidades abiertas, ventas del mes y actividad reciente.
 - **Exportación a CSV** de clientes con los filtros aplicados.
+- **Invitación de usuarios por email**: un Admin/Owner invita a alguien con un rol asignado; la persona invitada acepta y queda logueada dentro de la misma organización, sin crear un tenant nuevo.
 - **Diseño responsive**, con sidebar colapsable y sistema de diseño propio.
+
+> **Nota sobre envío de emails:** los flujos de recuperación de contraseña e invitación de usuarios generan el link correspondiente pero no lo envían por email real — el link se loguea en la consola del servidor (`EMAIL_PROVIDER=console`). Es una decisión deliberada para este proyecto de portfolio, que evita depender de un proveedor externo de email y de verificar un dominio propio. La arquitectura del backend ya está preparada para conectar un proveedor real (Resend, SendGrid, etc.) el día que se necesite, sin cambios estructurales.
 
 ## Stack tecnológico
 

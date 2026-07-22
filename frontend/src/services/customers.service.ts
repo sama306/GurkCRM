@@ -1,6 +1,7 @@
 import { apiClient } from "./api-client";
 import type {
   Customer,
+  CustomerDetail,
   CreateCustomerInput,
   UpdateCustomerInput,
   CustomerFilters,
@@ -15,7 +16,7 @@ export const customersService = {
   },
 
   getCustomerById(id: string) {
-    return apiClient.get<Customer>(`/customers/${id}`).then((res) => res.data);
+    return apiClient.get<CustomerDetail>(`/customers/${id}`).then((res) => res.data);
   },
 
   createCustomer(data: CreateCustomerInput) {

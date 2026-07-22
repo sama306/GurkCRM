@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import type { AxiosError } from "axios";
 import { customersService } from "@/services/customers.service";
 import type {
+  CustomerDetail,
   CustomerFilters,
   CreateCustomerInput,
   UpdateCustomerInput,
