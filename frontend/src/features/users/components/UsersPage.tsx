@@ -11,8 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, UserPlus } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useAuthStore } from "@/stores/auth.store";
+import { canManageUsers } from "@/utils/permissions";
+import { InviteUserDialog } from "@/features/invitations/components/InviteUserDialog";
+import { PendingInvitationsList } from "@/features/invitations/components/PendingInvitationsList";
 import type { UserFilters, UpdateUserInput } from "@/types/user";
 
 export function UsersPage() {
@@ -35,6 +40,11 @@ function UsersPageContent() {
   const [search, setSearch] = useState("");
   const [roleName, setRoleName] = useState("");
   const [page, setPage] = useState(1);
+  const [inviteOpen, setInviteOpen] = useState(false);
+
+  const currentUser = useAuthStore((s) => s.user);
+  const actorRole = currentUser?.roleName ?? "VIEWER";
+  const showInvite = canManageUsers(actorRole);
 
   const debouncedSearch = useDebounce(search, 400);
 
@@ -61,9 +71,15 @@ function UsersPageContent() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Usuarios</h1>
+        {showInvite && (
+          <Button onClick={() => setInviteOpen(true)}>
+            <UserPlus className="size-4" />
+            Invitar usuario
+          </Button>
+        )}
       </div>
 
       <div className="flex items-center gap-2">
@@ -105,6 +121,17 @@ function UsersPageContent() {
           totalPages={meta.totalPages}
           total={meta.total}
           onPageChange={setPage}
+        />
+      )}
+
+      <PendingInvitationsList />
+
+      {showInvite && (
+        <InviteUserDialog
+          open={inviteOpen}
+          onClose={() => setInviteOpen(false)}
+          roles={roles ?? []}
+          actorRole={actorRole}
         />
       )}
     </div>

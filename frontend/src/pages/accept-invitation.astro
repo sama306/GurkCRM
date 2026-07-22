@@ -1,0 +1,12 @@
+---
+import AuthLayout from "@/layouts/AuthLayout.astro"
+import AcceptInvitationForm from "@/features/invitations/components/AcceptInvitationForm"
+import { GuestGuard } from "@/components/auth/GuestGuard"
+---
+
+<AuthLayout>
+  <Fragment slot="title">Aceptar invitación</Fragment>
+  <GuestGuard client:load>
+    <AcceptInvitationForm client:load />
+  </GuestGuard>
+</AuthLayout>
